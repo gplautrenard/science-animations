@@ -37,3 +37,41 @@
     margin-bottom: 5px;
     color: rgba(255, 255, 255, 0.6); /* Added text transparency to list items */
 }
+
+
+#descriptionButton {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#descriptionWindow {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 80%;
+    max-height: 80%;
+    overflow-y: auto;
+}
+
+#descriptionWindow h2 {
+    margin-top: 0;
+}
+
+#descriptionWindow ul {
+    padding-left: 20px;
+}
+
+.hidden {
+    display: none;
+}

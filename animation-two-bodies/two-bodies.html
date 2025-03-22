@@ -35,6 +35,22 @@
             <li>R : Reset simulation</li>
         </ul>
     </div>
+    <div id="descriptionButton">?</div>
+<div id="descriptionWindow" class="hidden">
+    <h2>Two Bodies Simulation</h2>
+    <p>This simulation demonstrates the gravitational interaction between two celestial bodies. The bodies are represented by colored circles, and their trajectories are shown as fading trails.</p>
+    <p>Key features of the simulation:</p>
+    <ul>
+        <li>Gravitational force calculation based on masses and distances</li>
+        <li>Realistic orbital motion</li>
+        <li>Collision detection with canvas borders</li>
+        <li>Interactive mass adjustment for both bodies</li>
+        <li>Pause, resume, and reset functionality</li>
+        <li>Visual effects like color gradients and fading trails</li>
+    </ul>
+    <p>Use the keyboard controls to interact with the simulation and observe how changes in mass affect the orbital dynamics of the system.</p>
+</div>
+
 
     <div id="massInfo"></div>
 
@@ -260,6 +276,21 @@ helpButton.addEventListener('click', () => {
         helpWindow.classList.add('hidden');
     }
 });
+
+// Gestion de la fenêtre de description
+const descriptionButton = document.getElementById('descriptionButton');
+const descriptionWindow = document.getElementById('descriptionWindow');
+let descriptionVisible = false;
+
+descriptionButton.addEventListener('click', () => {
+    descriptionVisible = !descriptionVisible;
+    if (descriptionVisible) {
+        descriptionWindow.classList.remove('hidden');
+    } else {
+        descriptionWindow.classList.add('hidden');
+    }
+});
+
 
 </script>
 </body>
