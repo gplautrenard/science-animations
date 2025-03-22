@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solar System</title>
@@ -38,6 +37,15 @@
         const canvas = document.getElementById('solarSystem');
         const ctx = canvas.getContext('2d');
         const elapsedTimeDiv = document.getElementById('elapsedTime');
+
+        // Charger l'image de fond
+        const backgroundImage = new Image();
+        backgroundImage.src = '../commons/assets/textures/night-sky.png'; // Remplacez par l'URL de votre image
+
+        backgroundImage.onload = function() {
+            // L'image est chargée, on peut commencer l'animation
+            animate();
+        };
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -236,8 +244,12 @@
         }
 
         function animate() {
+            
             if (!isPaused) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                // Dessiner l'image de fond avant tout autre élément
+                ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+
+                //ctx.clearRect(0, 0, canvas.width, canvas.height); // Supprimer cette ligne, car l'image de fond recouvre l'écran
 
                 // Update the radius of the sun for the pulse effect
                 sun.pulseRadius += sun.pulseSpeed;
@@ -278,7 +290,11 @@
             requestAnimationFrame(animate);
         }
 
-        animate();
+        // On attend que l'image soit chargée avant de lancer l'animation
+        // Si l'image est déjà en cache, l'événement onload peut ne pas se déclencher
+        if(backgroundImage.complete) {
+            animate();
+        }
 
         // Gestion de la fenêtre d'aide
         const helpButton = document.getElementById('helpButton');
