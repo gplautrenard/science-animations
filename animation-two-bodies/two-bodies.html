@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { 
+            display: block; 
+            background: #000;
+        }
+
+        #helpButton {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.2); /* Match close button */
+            color: rgba(255, 255, 255, 0.8); /* Match close button */
+            border: none; /* Match close button */
+            padding: 5px 10px; /* Match close button */
+            border-radius: 5px; /* Match close button */
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        #helpWindow {
+            position: fixed;
+            top: 45px; /* Adjusted top position */
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: rgba(255, 255, 255, 0.8); /* Added text transparency */
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1001;
+            width: 300px; /* Adjusted width */
+        }
+
+        #helpWindow.hidden {
+            display: none;
+        }
+
+        #helpWindow ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #helpWindow li {
+            margin-bottom: 5px;
+            color: rgba(255, 255, 255, 0.6); /* Added text transparency to list items */
+        }
+
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div id="helpButton">Keyboard Actions</div>
+    <div id="helpWindow" class="hidden">
+        <ul>
+            <li>P : Pause / Resume</li>
+            <li>R : Reset simulation</li>
+            <li>Right / Left : Update body 1 weight</li>
+            <li>Up / Down : Update body 2 weight</li>
+        
+        </ul>
+    </div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+// Configuration
+const G = 500;
+const dt = 0.1;
+const lightSource = { x: 50, y: 50 };
+const MASS_CHANGE_RATE = 10;
+let isPaused = false;
+
+class Particle {
+    constructor(x, y, mass) {
+        this.x = x;
+        this.y = y;
+        this.mass = mass;
+        this.vx = 0;
+        this.vy = 0;
+        this.ax = 0;
+        this.ay = 0;
+        this.radius = Math.sqrt(mass);
+        this.trail = [];
+        this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        this.maxTrailLength = 1000;
+    }
+
+    applyForce(fx, fy) {
+        this.ax = fx / this.mass;
+        this.ay = fy / this.mass;
+    }
+
+    update() {
+        // Mise à jour de la position
+        this.x += this.vx * dt + 0.5 * this.ax * dt * dt;
+        this.y += this.vy * dt + 0.5 * this.ay * dt * dt;
+
+        // Collisions avec les bords
+        if(this.x - this.radius < 0) { // Bord gauche
+            this.x = this.radius;
+            this.vx *= -0.5; // Inversion avec perte d'énergie
+        }
+        if(this.x + this.radius > canvas.width) { // Bord droit
+            this.x = canvas.width - this.radius;
+            this.vx *= -0.5;
+        }
+        if(this.y - this.radius < 0) { // Bord haut
+            this.y = this.radius;
+            this.vy *= -0.5;
+        }
+        if(this.y + this.radius > canvas.height) { // Bord bas
+            this.y = canvas.height - this.radius;
+            this.vy *= -0.5;
+        }
+
+        // Mise à jour de la vitesse
+        this.vx += this.ax * dt;
+        this.vy += this.ay * dt;
+
+        this.trail.push({ x: this.x, y: this.y });
+        if(this.trail.length > this.maxTrailLength) this.trail.shift();
+    }
+
+    draw() {
+        // Dessin de la trajectoire avec dégradé
+        for (let i = 0; i < this.trail.length - 1; i++) {
+            const pos1 = this.trail[i];
+            const pos2 = this.trail[i + 1];
+            
+            const alpha = i/this.trail.length;
+            ctx.beginPath();
+            ctx.strokeStyle = `${this.color.replace('hsl', 'hsla').replace(')', `, ${alpha * 0.5})`)}`;
+            ctx.lineWidth = 1.5;
+            ctx.moveTo(pos1.x, pos1.y);
+            ctx.lineTo(pos2.x, pos2.y);
+            ctx.stroke();
+        }
+
+        // Dessin du corps avec éclairage simulé
+        const gradient = ctx.createRadialGradient(
+            this.x - (this.radius / 2), 
+            this.y - (this.radius / 2),
+            this.radius / 4,
+            this.x,
+            this.y,
+            this.radius
+        );
+        
+        gradient.addColorStop(0, "white");
+        gradient.addColorStop(0.5, this.color);
+        gradient.addColorStop(1, "black");
+
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = gradient;
+        ctx.fill();
+    }
+
+    changeMass(delta) {
+        this.mass = Math.max(10, this.mass + delta);
+        this.radius = Math.sqrt(this.mass);
+    }
+}
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+function initParticles() {
+    const p1 = new Particle(canvas.width / 2, canvas.height / 2, 1200);
+    const p2 = new Particle(canvas.width / 2 + 100, canvas.height / 2, 10);
+    
+    // Calcul de la vitesse initiale pour une orbite circulaire
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const v = Math.sqrt(G * p1.mass / distance);
+    
+    // Application de la vitesse perpendiculaire à la ligne entre les particules
+    p2.vx = -v * dy / distance;
+    p2.vy = v * dx / distance;
+
+    return [p1, p2];
+}
+
+let particles = initParticles();
+
+function calculateGravity() {
+    const [p1, p2] = particles;
+
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const distanceSq = dx * dx + dy * dy;
+    const distance = Math.sqrt(distanceSq);
+
+    const F = G * p1.mass * p2.mass / distanceSq;
+    const angle = Math.atan2(dy, dx);
+
+    const fx = F * Math.cos(angle);
+    const fy = F * Math.sin(angle);
+
+    p1.applyForce(fx, fy);
+    p2.applyForce(-fx, -fy);
+}
+
+function animate() {
+
+    if (!isPaused) {
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        calculateGravity();
+
+        particles.forEach(p => {
+            p.update();
+            p.draw();
+        });
+    }
+
+    requestAnimationFrame(animate);
+}
+
+function reset() {
+    particles = initParticles();
+}
+
+window.addEventListener('load', () => {
+    resizeCanvas();
+    reset();
+});
+window.addEventListener('resize', resizeCanvas);
+
+document.addEventListener('keydown', (event) => {
+    switch(event.key) {
+        case 'ArrowUp':
+            particles[0].changeMass(MASS_CHANGE_RATE);
+            break;
+        case 'ArrowDown':
+            particles[0].changeMass(-MASS_CHANGE_RATE);
+            break;
+        case 'ArrowRight':
+            particles[1].changeMass(MASS_CHANGE_RATE);
+            break;
+        case 'ArrowLeft':
+            particles[1].changeMass(-MASS_CHANGE_RATE);
+            break;
+        case 'p':
+            isPaused = !isPaused;
+            break;
+        case 'r':
+            reset()
+            break;
+    }
+});
+
+animate();
+
+// Gestion de la fenêtre d'aide
+const helpButton = document.getElementById('helpButton');
+const helpWindow = document.getElementById('helpWindow');
+let helpVisible = false; // Track visibility
+
+helpButton.addEventListener('click', () => {
+    helpVisible = !helpVisible; // Toggle visibility
+    if (helpVisible) {
+        helpWindow.classList.remove('hidden');
+    } else {
+        helpWindow.classList.add('hidden');
+    }
+});
+
+</script>
+</body>
+</html>

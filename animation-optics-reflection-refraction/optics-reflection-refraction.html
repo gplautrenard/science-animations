@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réflexion et Réfraction Arc-en-ciel avec Particules Transparentes</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="scene"></canvas>
+
+<script>
+const canvas = document.getElementById('scene');
+const ctx = canvas.getContext('2d');
+
+let centerY, centerX, rayLength;
+let angle = 40 * Math.PI / 180; // Angle d'incidence initial (en radians)
+const n1 = 1.0; // Indice de réfraction du milieu supérieur
+let baseN2 = 1.5; // Indice de réfraction du milieu inférieur
+let showInfos = false;
+
+const colors = [
+    {color: '#FF0000', n2Multiplier: 0.85}, // Rouge
+    {color: '#FF7F00', n2Multiplier: 0.90}, // Orange
+    {color: '#FFFF00', n2Multiplier: 0.95}, // Jaune
+    {color: '#00FF00', n2Multiplier: 1.00}, // Vert
+    {color: '#0000FF', n2Multiplier: 1.05}, // Bleu
+    {color: '#4B0082', n2Multiplier: 1.1}, // Indigo
+    {color: '#9400D3', n2Multiplier: 1.15}  // Violet
+];
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    centerY = canvas.height / 2;
+    centerX = canvas.width / 2;
+    rayLength = Math.max(canvas.width, canvas.height) * 2;
+    drawScene();
+}
+
+function drawRayWithHalo(startX, startY, endX, endY, color, width) {
+    // Halo 1
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(endX, endY);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width + 5;
+    ctx.globalAlpha = 0.1;
+    ctx.stroke();
+    
+    // Halo 2
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(endX, endY);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width + 2;
+    ctx.globalAlpha = 0.5;
+    ctx.stroke();
+
+    // Rayon principal
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(endX, endY);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.globalAlpha = 1;
+    ctx.stroke();
+
+    // Ajouter des particules
+    const particleCount = 5;
+    for (let i = 0; i < particleCount; i++) {
+        const t = Math.random();
+        const x = startX + (endX - startX) * t;
+        const y = startY + (endY - startY) * t;
+        const particle = new Particle(x, y, color, startX, startY, endX, endY);
+        particles.push(particle);
+    }
+}
+
+function drawText(text, x, y) {
+    ctx.font = '16px Arial';
+    ctx.fillStyle = 'white';
+    ctx.globalAlpha = 0.5; // Transparence du texte
+    ctx.fillText(text, x, y);
+}
+
+function drawScene() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Ligne de séparation des milieux
+    ctx.beginPath();
+    ctx.moveTo(0, centerY);
+    ctx.lineTo(canvas.width, centerY);
+    ctx.strokeStyle = '#333';
+    ctx.stroke();
+
+    // Affichage des infos (incidence et indices réfraction)
+    if(showInfos) {
+        drawText(`i = ${(angle * 180 / Math.PI).toFixed(1)}°`, 10, 30);
+        drawText(`n1 = ${n1.toFixed(2)}`, 10, centerY - 10); // Au-dessus de la ligne
+        drawText(`n2 = ${baseN2.toFixed(2)}`, 10, centerY + 25); // En dessous de la ligne
+    }
+    const startX = centerX - Math.sin(angle) * rayLength;
+    const startY = centerY - Math.cos(angle) * rayLength;
+
+    // Rayon incident
+    drawRayWithHalo(startX, startY, centerX, centerY, 'white', 2);
+
+    // Rayon réfléchi
+    const reflectEndX = centerX + Math.sin(angle) * rayLength;
+    const reflectEndY = centerY - Math.cos(angle) * rayLength;
+    drawRayWithHalo(centerX, centerY, reflectEndX, reflectEndY, 'white', 1);
+
+    // Rayons réfractés (arc-en-ciel)
+    colors.forEach(c => {
+        let n2 = baseN2 * c.n2Multiplier; // Ajustement pour chaque couleur
+        if(Math.abs(baseN2 - n1) < 0.001){
+            n2 = n1;
+        }
+        const sinTheta2 = (n1 / n2) * Math.sin(angle);
+
+        if (sinTheta2 > 1) return; // Réflexion totale interne
+        if (angle == Math.PI / 2) return;
+
+        const theta2 = Math.asin(sinTheta2);
+        const refractEndX = centerX + Math.sin(theta2) * rayLength;
+        const refractEndY = centerY + Math.cos(theta2) * rayLength;
+
+        drawRayWithHalo(centerX, centerY, refractEndX, refractEndY, c.color, 1);
+    });
+
+    updateParticles();
+}
+
+// Gestion des événements clavier pour ajuster l'angle et l'indice n2
+window.addEventListener('keydown', (event) => {
+    switch (event.key) {
+        case 'ArrowLeft': // Diminuer l'angle d'incidence
+            angle = Math.max(0, angle - Math.PI / 180);
+            break;
+        case 'ArrowRight': // Augmenter l'angle d'incidence
+            angle = Math.min(Math.PI / 2, angle + Math.PI / 180);
+            break;
+        case 'ArrowUp': // Augmenter l'indice du milieu inférieur (n2)
+            baseN2 += 0.01; // Pas d'incrémentation : +0.01
+            break;
+        case 'ArrowDown': // Diminuer l'indice du milieu inférieur (n2)
+            baseN2 -= 0.01; // Pas de décrémentation : -0.01
+            break;
+        case 'i': // Affichage des infos
+            showInfos = !showInfos; 
+            break;
+        default:
+            return; // Ignorer les autres touches
+    }
+    
+    //particles = []; // Réinitialiser les particules
+    drawScene();
+});
+
+// Redimensionnement dynamique du canvas
+window.addEventListener('resize', resizeCanvas);
+
+class Particle {
+    constructor(x, y, color, startX, startY, endX, endY) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.size = Math.random() * 2 + 1;
+        this.centerX = x;
+        this.centerY = y;
+        this.angle = Math.atan2(endY - startY, endX - startX);
+        this.speed = Math.random() * 0.5 + 0.4;
+        this.oscillationRadius = Math.random() * 5 + 3;
+        this.oscillationAngle = Math.random() * Math.PI * 2;
+        this.oscillationSpeed = Math.random() * 0.05 + 0.01;
+        this.alpha = Math.random() * 0.5 + 0.2; // Transparence aléatoire entre 0.1 et 0.6
+    }
+
+    update() {
+        this.oscillationAngle += this.oscillationSpeed;
+        const oscillationX = Math.cos(this.oscillationAngle) * this.oscillationRadius;
+        const oscillationY = Math.sin(this.oscillationAngle) * this.oscillationRadius;
+        
+        this.x = this.centerX + oscillationX * Math.cos(this.angle) - oscillationY * Math.sin(this.angle);
+        this.y = this.centerY + oscillationX * Math.sin(this.angle) + oscillationY * Math.cos(this.angle);
+        
+        this.centerX += Math.cos(this.angle) * this.speed;
+        this.centerY += Math.sin(this.angle) * this.speed;
+        
+        this.size -= 0.02;
+        this.alpha -= 0.002; // Diminution progressive de la transparence
+    }
+
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.globalAlpha = Math.max(0, this.alpha); // Assure que l'alpha ne devient pas négatif
+        ctx.fill();
+        ctx.globalAlpha = 1; // Réinitialise l'alpha global
+    }
+}
+
+let particles = [];
+
+function updateParticles() {
+    for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].update();
+        particles[i].draw();
+        if (particles[i].size <= 0.2 || particles[i].alpha <= 0) {
+            particles.splice(i, 1);
+        }
+    }
+}
+
+function animate() {
+    drawScene();
+    requestAnimationFrame(animate);
+}
+
+// Initialisation de la scène
+resizeCanvas();
+animate();
+</script>
+</body>
+</html>
