@@ -1,20 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solar System</title>
+    <link rel="stylesheet" href="../commons/css/buttons.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
+        body { margin: 0; overflow: hidden; }
+        canvas { 
+            display: block; 
+            background: #000;
         }
-
-        canvas {
-            background: black;
-            width: 100vw;
-            height: 100vh;
-        }
-
         #elapsedTime {
             position: absolute;
             top: 10px;
@@ -26,6 +23,15 @@
 </head>
 <body>
     <canvas id="solarSystem"></canvas>
+    <div id="helpButton">Keyboard Actions</div>
+    <div id="helpWindow" class="hidden">
+        <ul>
+            <li>P : Pause / Resume</li>
+            <li>R : Reset simulation</li>
+            <li>Mouse Wheel : Zoom / Dezoom</li>
+        </ul>
+    </div>
+
     <div id="elapsedTime"></div>
 
     <script>
@@ -273,6 +279,21 @@
         }
 
         animate();
+
+        // Gestion de la fenêtre d'aide
+        const helpButton = document.getElementById('helpButton');
+        const helpWindow = document.getElementById('helpWindow');
+        let helpVisible = false; // Track visibility
+
+        helpButton.addEventListener('click', () => {
+            helpVisible = !helpVisible; // Toggle visibility
+            if (helpVisible) {
+                helpWindow.classList.remove('hidden');
+            } else {
+                helpWindow.classList.add('hidden');
+            }
+        });
+
     </script>
 </body>
 </html>

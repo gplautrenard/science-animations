@@ -1,53 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two Bodies</title>
+    <link rel="stylesheet" href="../commons/css/buttons.css">
     <style>
         body { margin: 0; overflow: hidden; }
         canvas { 
             display: block; 
             background: #000;
         }
-
-        #helpButton {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background-color: rgba(255, 255, 255, 0.2); /* Match close button */
-            color: rgba(255, 255, 255, 0.8); /* Match close button */
-            border: none; /* Match close button */
-            padding: 5px 10px; /* Match close button */
-            border-radius: 5px; /* Match close button */
-            cursor: pointer;
-            z-index: 1000;
-        }
-
-        #helpWindow {
-            position: fixed;
-            top: 45px; /* Adjusted top position */
-            right: 10px;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: rgba(255, 255, 255, 0.8); /* Added text transparency */
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 1001;
-            width: 300px; /* Adjusted width */
-        }
-
-        #helpWindow.hidden {
-            display: none;
-        }
-
-        #helpWindow ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        #helpWindow li {
-            margin-bottom: 5px;
-            color: rgba(255, 255, 255, 0.6); /* Added text transparency to list items */
-        }
-
     </style>
 </head>
 <body>
