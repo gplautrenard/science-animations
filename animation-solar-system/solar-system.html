@@ -56,7 +56,7 @@
 
         const G = 6.67430e-11; // Gravitational constant
         let scale = 1e-9; // Scale for converting meters to pixels, modifiable with zoom
-        const timeStep = 3600 * 24; // 1 day per frame
+        const timeStep = 3600*12; // 10 hours per frame
         let elapsedDays = 0;
         let isPaused = false;
 
@@ -139,7 +139,16 @@
                 if (this.trail.length > this.trailLength) this.trail.shift();
             }
 
+            drawOrbit() {
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.lineWidth = 0.5;
+                ctx.ellipse(sun.x, sun.y, this.distance * scale, this.distance * scale, 0, 0, 2 * Math.PI);
+                ctx.stroke();
+            }
+
             draw() {
+                this.drawOrbit()
                 // Draw the trail (trajectory)
                 ctx.beginPath();
                 for (let i = 0; i < this.trail.length - 1; i++) {
@@ -149,7 +158,7 @@
                     const alpha = i / this.trail.length;
                     ctx.beginPath();
                     ctx.strokeStyle = `hsla(${this.hue}, ${this.saturation}%, ${this.lightness}%, ${alpha * 0.5})`;
-                    ctx.lineWidth = 1.5;
+                    ctx.lineWidth = 4;
                     ctx.moveTo(pos1.x, pos1.y);
                     ctx.lineTo(pos2.x, pos2.y);
                     ctx.stroke();
@@ -282,9 +291,9 @@
                     planet.draw();
                 });
 
-                // Update the elapsed time
-                elapsedDays++;
-                elapsedTimeDiv.textContent = `Days elapsed: ${elapsedDays}`;
+                // Update the elapsed time, 12 jours per frame
+                elapsedDays+=0.5;
+                elapsedTimeDiv.textContent = `Days elapsed: ${Math.round(elapsedDays)}`;
             }
 
             requestAnimationFrame(animate);
