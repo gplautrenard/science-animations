@@ -11,6 +11,15 @@
             display: block; 
             background: #000;
         }
+        #massInfo {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: rgba(255, 255, 255, 0.5);
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -19,17 +28,20 @@
     <div id="helpButton">Keyboard Actions</div>
     <div id="helpWindow" class="hidden">
         <ul>
+            <li>Up / Down : Update body 1 mass</li>
+            <li>Right / Left : Update body 2 mass</li>
+            <li>I : Toggle mass information display</li>
             <li>P : Pause / Resume</li>
             <li>R : Reset simulation</li>
-            <li>Right / Left : Update body 1 weight</li>
-            <li>Up / Down : Update body 2 weight</li>
-        
         </ul>
     </div>
+
+    <div id="massInfo"></div>
 
 <script>
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+const massInfo = document.getElementById('massInfo');
 
 // Configuration
 const G = 500;
@@ -37,6 +49,7 @@ const dt = 0.1;
 const lightSource = { x: 50, y: 50 };
 const MASS_CHANGE_RATE = 10;
 let isPaused = false;
+let showMassInfo = false;
 
 class Particle {
     constructor(x, y, mass) {
@@ -173,9 +186,7 @@ function calculateGravity() {
 }
 
 function animate() {
-
     if (!isPaused) {
-
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         calculateGravity();
@@ -184,6 +195,10 @@ function animate() {
             p.update();
             p.draw();
         });
+
+        if (showMassInfo) {
+            updateMassInfo();
+        }
     }
 
     requestAnimationFrame(animate);
@@ -191,6 +206,10 @@ function animate() {
 
 function reset() {
     particles = initParticles();
+}
+
+function updateMassInfo() {
+    massInfo.innerHTML = `Body 1 Mass: ${particles[0].mass}<br>Body 2 Mass: ${particles[1].mass}`;
 }
 
 window.addEventListener('load', () => {
@@ -217,7 +236,11 @@ document.addEventListener('keydown', (event) => {
             isPaused = !isPaused;
             break;
         case 'r':
-            reset()
+            reset();
+            break;
+        case 'i':
+            showMassInfo = !showMassInfo;
+            massInfo.style.display = showMassInfo ? 'block' : 'none';
             break;
     }
 });
