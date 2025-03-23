@@ -2,36 +2,95 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=<device-width>, initial-scale=1.0">
-    <title>Science Animations</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Lab</title>
     <style>
-        body { margin: 0; overflow: hidden; }
-        canvas { display: block; }
-        footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background-color: #000;
-            color: #fff;
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-image: url('../commons/assets/textures/night-sky.png');
+            background-size: cover;
+            background-position: center;
+            font-family: 'Roboto', sans-serif;
+            color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        h1 {
             text-align: center;
-            padding: 10px;
-            font-size: 12px;
+            font-size: 3.5rem;
+            margin-top: 40px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 400;
+            letter-spacing: 2px;
         }
-        footer a {
-            color: rgb(78, 78, 118);
+
+        .description {
+            text-align: center;
+            font-size: 1.2rem;
+            margin: 40px auto;
+            max-width: 800px;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.6;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 60px auto;
+            text-align: center;
+        }
+
+        ul li {
+            margin: 30px 0;
+        }
+
+        ul li a {
             text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            transition: all 0.3s ease-in-out;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
+
+        ul li a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        footer {
+            margin-top: auto;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            padding: 15px;
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
         footer a:hover {
+            color: #fff;
             text-decoration: underline;
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <footer>
-        Credits (textures) : Earth Blue Marble by <a href="https://www.nasa.gov/" target="_blank">NASA</a> and <a href="https://globe.gl/" target="_blank">Globe.gl</a>. Night Sky by <a href="https://unsplash.com/" target="_blank">Unsplash</a>.
-    </footer>
-    <h1>Science Animations</h1>
-    <hr/>
+    <h1>The Universe Unleashed</h1>
+    <p class="description">Welcome to this site that allows you to launch simulations on various physical phenomena. Explore interactive visualizations of scientific concepts and deepen your understanding of the natural world.</p>
 
     <ul>
         <li><a href="animation-solar-system/solar-system.html">Solar System</a></li>
@@ -39,5 +98,9 @@
         <li><a href="animation-two-bodies/two-bodies.html">Two Bodies</a></li>
         <li><a href="animation-optics-reflection-refraction/optics-reflection-refraction.html">Reflection and Refraction</a></li>
     </ul>
+
+    <footer>
+        Credits (textures): Earth Blue Marble by <a href="https://www.nasa.gov/" target="_blank">NASA</a> and <a href="https://globe.gl/" target="_blank">Globe.gl</a>. Night Sky by <a href="https://unsplash.com/" target="_blank">Unsplash</a>.
+    </footer>
 </body>
 </html>
