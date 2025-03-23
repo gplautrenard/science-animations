@@ -7,12 +7,12 @@
     <style>
         body {
             margin: 0;
-            overflow: hidden;
             background-color: #000000;
             background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1519681393784-d120267933ba');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            background-attachment: fixed;
             font-family: 'Roboto', sans-serif;
             color: rgba(255, 255, 255, 0.9);
             display: flex;
@@ -36,16 +36,40 @@
             max-width: 800px;
             color: rgba(255, 255, 255, 0.7);
             line-height: 1.6;
-            background-color: rgba(0, 0, 0, 0.2);
+            background-color: rgba(0, 0, 0, 0.1);
             padding: 20px;
             border-radius: 10px;
+            letter-spacing: 1px;
+        }
+
+        .theme-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 40px 0;
+        }
+
+        .theme {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px;
+            width: 80%;
+            max-width: 600px;
             backdrop-filter: blur(5px);
+        }
+
+        h2 {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 2rem;
+            margin-bottom: 20px;
         }
 
         ul {
             list-style-type: none;
             padding: 0;
-            margin: 60px auto;
+            margin: 0;
             text-align: center;
         }
 
@@ -99,22 +123,40 @@
     <h1>The Universe Unleashed</h1>
     <p class="description">Welcome to this website that allows you to launch simulations on various physical phenomena. Explore interactive visualizations of scientific concepts and deepen your understanding of the natural world.</p>
 
-    <ul>
-        <li><a href="animation-solar-system/solar-system.html">Solar System</a></li>
-        <li><a href="animation-sandbox-orbit/sandbox-orbit.html">Sandbox Orbit</a></li>
-        <li><a href="animation-two-bodies/two-bodies.html">Two Bodies</a></li>
-        <li><a href="animation-optics-reflection-refraction/optics-reflection-refraction.html">Reflection and Refraction</a></li>
-    </ul>
+    <div class="theme-container">
+        <div class="theme">
+            <h2>Mechanics</h2>
+            <ul>
+                <li><a href="animation-solar-system/solar-system.html">Solar System</a></li>
+                <li><a href="animation-sandbox-orbit/sandbox-orbit.html">Sandbox Orbit</a></li>
+                <li><a href="animation-two-bodies/two-bodies.html">Two Bodies</a></li>
+                <li><a href="animation-pendulum/pendulum.html">Pendulum</a></li>
+            </ul>
+        </div>
 
-    <ul>
-        <li><a href="animation-solar-system/solar-system.html">Solar System</a></li>
-        <li><a href="animation-sandbox-orbit/sandbox-orbit.html">Sandbox Orbit</a></li>
-        <li><a href="animation-two-bodies/two-bodies.html">Two Bodies</a></li>
-        <li><a href="animation-optics-reflection-refraction/optics-reflection-refraction.html">Reflection and Refraction</a></li>
-    </ul>
+        <div class="theme">
+            <h2>Optics</h2>
+            <ul>
+                <li><a href="animation-optics-reflection-refraction/optics-reflection-refraction.html">Reflection and Refraction</a></li>
+                <li><a href="animation-lens/lens.html">Lens Simulation</a></li>
+                <li><a href="animation-diffraction/diffraction.html">Diffraction Patterns</a></li>
+                <li><a href="animation-polarization/polarization.html">Light Polarization</a></li>
+            </ul>
+        </div>
+
+        <div class="theme">
+            <h2>Waves</h2>
+            <ul>
+                <li><a href="animation-wave-propagation/wave-propagation.html">Wave Propagation</a></li>
+                <li><a href="animation-standing-waves/standing-waves.html">Standing Waves</a></li>
+                <li><a href="animation-doppler-effect/doppler-effect.html">Doppler Effect</a></li>
+                <li><a href="animation-interference/interference.html">Wave Interference</a></li>
+            </ul>
+        </div>
+    </div>
 
     <footer>
-        Credits (textures): Earth Blue Marble by <a href="https://www.nasa.gov/" target="_blank">NASA</a> and <a href="https://globe.gl/" target="_blank">Globe.gl</a>. Cover Picture and Night Sky by <a href="https://unsplash.com/" target="_blank">Unsplash</a>.
+        Credits of textures: Earth Blue Marble by <a href="https://www.nasa.gov/" target="_blank">NASA</a> and <a href="https://globe.gl/" target="_blank">Globe.gl</a>. Cover Picture and Night Sky by <a href="https://unsplash.com/" target="_blank">Unsplash</a>.
     </footer>
 </body>
 </html>
