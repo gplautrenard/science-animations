@@ -8,9 +8,11 @@
         body {
             margin: 0;
             overflow: hidden;
-            background-image: url('../commons/assets/textures/night-sky.png');
+            background-color: #000000;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1519681393784-d120267933ba');
             background-size: cover;
             background-position: center;
+            background-repeat: no-repeat;
             font-family: 'Roboto', sans-serif;
             color: rgba(255, 255, 255, 0.9);
             display: flex;
@@ -22,9 +24,9 @@
             text-align: center;
             font-size: 3.5rem;
             margin-top: 40px;
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 0.9);
             font-weight: 400;
-            letter-spacing: 2px;
+            letter-spacing: 4px;
         }
 
         .description {
@@ -32,8 +34,12 @@
             font-size: 1.2rem;
             margin: 40px auto;
             max-width: 800px;
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(255, 255, 255, 0.9);
             line-height: 1.6;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
         }
 
         ul {
@@ -51,11 +57,12 @@
             text-decoration: none;
             padding: 12px 24px;
             border-radius: 25px;
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(0, 0, 0, 0.6);
             color: rgba(255, 255, 255, 0.9);
             font-size: 1.1rem;
             transition: all 0.3s ease-in-out;
             border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
         }
 
         ul li a:hover {
@@ -68,7 +75,7 @@
         footer {
             margin-top: auto;
             width: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.6);
             color: rgba(255, 255, 255, 0.7);
             text-align: center;
             padding: 15px;
@@ -100,7 +107,7 @@
     </ul>
 
     <footer>
-        Credits (textures): Earth Blue Marble by <a href="https://www.nasa.gov/" target="_blank">NASA</a> and <a href="https://globe.gl/" target="_blank">Globe.gl</a>. Night Sky by <a href="https://unsplash.com/" target="_blank">Unsplash</a>.
+        Credits (textures): Earth Blue Marble by <a href="https://www.nasa.gov/" target="_blank">NASA</a> and <a href="https://globe.gl/" target="_blank">Globe.gl</a>. Cover Picture and Night Sky by <a href="https://unsplash.com/" target="_blank">Unsplash</a>.
     </footer>
 </body>
 </html>
