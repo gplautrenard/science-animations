@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendulum</title>
+    <link rel="stylesheet" href="../commons/css/buttons.css">
     <style>
         body {
             margin: 0;
             overflow: hidden;
-            background: black; /* Fond noir par défaut */
+            background: black;
         }
         canvas {
             display: block;
@@ -22,6 +26,20 @@
 <body>
     <canvas id="doublePendulum"></canvas>
     <div id="elapsedTime"></div>
+    <div id="helpButton">Keyboard Actions</div>
+    <div id="helpWindow" class="hidden">
+        <h3>Keyboard Actions</h3>
+        <ul>
+            <li>P: Pause / Resume</li>
+            <li>Up/Down: Increase/Decrease Length</li>
+            <li>Left/Right: Increase/Decrease Pendulums</li>
+        </ul>
+    </div>
+    <div id="descriptionButton">?</div>
+    <div id="descriptionWindow" class="hidden">
+        <h3>Double Pendulum Simulation</h3>
+        <p>This simulation demonstrates the chaotic motion of a double pendulum. Observe how small changes in initial conditions can lead to drastically different outcomes.</p>
+    </div>
 
     <script>
         const canvas = document.getElementById('doublePendulum');
@@ -31,33 +49,36 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
+        let isPaused = false;
+
+        let timeMultiplier = 0.1;
+
+
         class DoublePendulum {
-            constructor(angleOffset) {
+            constructor(angleOffset, length1, length2) {
                 this.angle1 = Math.PI/1.5 + angleOffset;
                 this.angle2 = Math.PI/1.5 + angleOffset;
                 this.angleV1 = 0;
                 this.angleV2 = 0;
-                this.length1 = 150;
-                this.length2 = 150;
+                this.length1 = length1;
+                this.length2 = length2;
                 this.mass1 = 10;
                 this.mass2 = 10;
                 this.trail = [];
                 this.color = `hsl(${Math.random() * 360}, 70%, 50%)`;
-                this.timeMultiplier = 0.1;
-                this.trailLength = 500; // Longueur de la traînée
+                this.trailLength = 500;
             }
 
             update() {
-                // Equations du mouvement avec ajustement temporel
                 const g = 9.81;
-                const dt = this.timeMultiplier;
+                const dt = timeMultiplier;
 
                 const num1 = -g * (2 * this.mass1 + this.mass2) * Math.sin(this.angle1);
                 const num2 = -this.mass2 * g * Math.sin(this.angle1 - 2 * this.angle2);
                 const num3 = -2 * Math.sin(this.angle1 - this.angle2) * this.mass2;
                 const num4 = this.angleV2**2 * this.length2 + this.angleV1**2 * this.length1 * Math.cos(this.angle1 - this.angle2);
                 const den = this.length1 * (2 * this.mass1 + this.mass2 - this.mass2 * Math.cos(2 * this.angle1 - 2 * this.angle2));
-                
+
                 const angleA1 = (num1 + num2 + num3 * num4) / den;
 
                 const num5 = 2 * Math.sin(this.angle1 - this.angle2);
@@ -68,13 +89,11 @@
 
                 const angleA2 = (num5 * (num6 + num7 + num8)) / den2;
 
-                // Application du multiplicateur temporel
                 this.angleV1 += angleA1 * dt;
                 this.angleV2 += angleA2 * dt;
                 this.angle1 += this.angleV1 * dt;
                 this.angle2 += this.angleV2 * dt;
 
-                // Calcul des positions
                 const x1 = canvas.width/2 + this.length1 * Math.sin(this.angle1);
                 const y1 = canvas.height/3 + this.length1 * Math.cos(this.angle1);
                 const x2 = x1 + this.length2 * Math.sin(this.angle2);
@@ -82,10 +101,10 @@
 
                 this.trail.push({x: x2, y: y2});
                 if(this.trail.length > 500) this.trail.shift();
+            
             }
 
             draw() {
-                // Dessin des bras
                 const x1 = canvas.width/2 + this.length1 * Math.sin(this.angle1);
                 const y1 = canvas.height/3 + this.length1 * Math.cos(this.angle1);
                 const x2 = x1 + this.length2 * Math.sin(this.angle2);
@@ -105,7 +124,6 @@
                 ctx.arc(x2, y2, 10, 0, Math.PI*2);
                 ctx.fill();
 
-                // Draw the trail (trajectory)
                 for (let i = 0; i < this.trail.length - 1; i++) {
                     const pos1 = this.trail[i];
                     const pos2 = this.trail[i + 1];
@@ -121,33 +139,100 @@
             }
         }
 
-        const pendulums = [
-            new DoublePendulum(Math.random() * 0.0001),
-            new DoublePendulum(Math.random() * 0.0001),
-            new DoublePendulum(Math.random() * 0.0001)
-        ];
+        let pendulums = [];
+        let numPendulums = 3;
+        let pendulumLength = 150;
+        let offset = 0.0001;
+
+        function resetSimulation() {
+            pendulums = [];
+            for (let i = 0; i < numPendulums; i++) {
+                pendulums.push(new DoublePendulum(Math.random() * offset, pendulumLength, pendulumLength));
+            }
+        }
+
+        resetSimulation();
 
         let elapsedFrames = 0;
 
         function animate() {
+            
+            if(!isPaused){
+                
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                pendulums.forEach(pendulum => {
+                    pendulum.update();
+                    pendulum.draw();
+                });
+
+                elapsedFrames++;
+                elapsedTimeDiv.textContent = `Time: ${(elapsedFrames*timeMultiplier).toFixed(0)} s`;
+            }
             requestAnimationFrame(animate);
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            pendulums.forEach(pendulum => {
-                pendulum.update();
-                pendulum.draw();
-            });
-
-            elapsedFrames++;
-            elapsedTimeDiv.textContent = `Frames: ${elapsedFrames}`;
         }
 
         animate();
 
+        // Gestion de la fenêtre d'aide
+        const helpButton = document.getElementById('helpButton');
+        const helpWindow = document.getElementById('helpWindow');
+        let helpVisible = false; // Track visibility
+
+        helpButton.addEventListener('click', () => {
+            helpVisible = !helpVisible; // Toggle visibility
+            if (helpVisible) {
+                helpWindow.classList.remove('hidden');
+            } else {
+                helpWindow.classList.add('hidden');
+            }
+        });
+
+        // Gestion de la fenêtre de description
+        const descriptionButton = document.getElementById('descriptionButton');
+        const descriptionWindow = document.getElementById('descriptionWindow');
+        let descriptionVisible = false;
+
+        descriptionButton.addEventListener('click', () => {
+            descriptionVisible = !descriptionVisible;
+            if (descriptionVisible) {
+                descriptionWindow.classList.remove('hidden');
+            } else {
+                descriptionWindow.classList.add('hidden');
+            }
+        });
+
         window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+        });
+
+        document.addEventListener('keydown', (event) => {
+            switch (event.key) {
+                case 'ArrowUp':
+                    pendulumLength += 10;
+                    resetSimulation();
+                    break;
+                case 'ArrowDown':
+                    pendulumLength -= 10;
+                    if (pendulumLength < 50) pendulumLength = 50;
+                    resetSimulation();
+                    break;
+                case 'ArrowRight':
+                    numPendulums++;
+                    if (numPendulums > 8) numPendulums = 8;
+                    resetSimulation();
+                    break;
+                case 'ArrowLeft':
+                    numPendulums--;
+                    if (numPendulums < 1) numPendulums = 1;
+                    resetSimulation();
+                    break;
+                case 'p':
+                    isPaused = !isPaused;
+                    break;
+            }
         });
     </script>
 </body>
