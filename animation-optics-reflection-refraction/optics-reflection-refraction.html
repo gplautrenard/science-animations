@@ -25,6 +25,44 @@
         </ul>
     </div>
 
+    <div id="descriptionButton">?</div>
+    <div id="descriptionWindow" class="hidden">
+        <h3>Reflection and Refraction Simulation</h3>
+        <p>This simulation illustrates the phenomena of reflection and refraction of light when passing from one medium to another.</p>
+
+        <p><b>Principles:</b></p>
+        <ul>
+            <li><b>Reflection:</b> A portion of the incident light is reflected at the interface between the two media. The angle of reflection is equal to the angle of incidence.</li>
+            <li><b>Refraction:</b> A portion of the incident light is refracted, meaning it changes direction when passing through the interface. The angle of refraction depends on the refractive indices of the two media and the angle of incidence, according to Snell's Law.</li>
+        </ul>
+
+        <p><b>Equations:</b></p>
+        <p>
+            <b>Snell's Law for Reflection:</b>
+            θ<sub>r</sub> = θ<sub>i</sub>
+        </p>
+        <p>
+            Where:
+            <ul>
+                <li>θ<sub>r</sub> is the angle of reflection.</li>
+                <li>θ<sub>i</sub> is the angle of incidence.</li>
+            </ul>
+        </p>
+        <p>
+            <b>Snell's Law for Refraction:</b>
+            n<sub>1</sub>sin(θ<sub>i</sub>) = n<sub>2</sub>sin(θ<sub>t</sub>)
+        </p>
+        <p>
+            Where:
+            <ul>
+                <li>n<sub>1</sub> is the refractive index of the first medium.</li>
+                <li>n<sub>2</sub> is the refractive index of the second medium.</li>
+                <li>θ<sub>i</sub> is the angle of incidence.</li>
+                <li>θ<sub>t</sub> is the angle of refraction.</li>
+            </ul>
+        </p>
+    </div>
+
 <script>
 const canvas = document.getElementById('scene');
 const ctx = canvas.getContext('2d');
@@ -242,6 +280,21 @@ helpButton.addEventListener('click', () => {
     } else {
         helpWindow.classList.add('hidden');
     }
+});
+
+// Description window management
+const descriptionButton = document.getElementById('descriptionButton');
+const descriptionWindow = document.getElementById('descriptionWindow');
+let descriptionVisible = false;
+
+descriptionButton.addEventListener('click', () => {
+    descriptionVisible = !descriptionVisible;
+    descriptionWindow.classList.toggle('hidden', !descriptionVisible);
+});
+
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 });
 
 </script>

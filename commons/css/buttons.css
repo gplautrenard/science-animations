@@ -55,9 +55,17 @@
     margin: 0;
 }
 
-#helpWindow li, #descriptionWindow li {
+#helpWindow li {
     margin-bottom: 5px;
     color: rgba(255, 255, 255, 0.6);
+}
+
+#descriptionWindow li {
+    margin-bottom: 5px;
+    color: rgba(255, 255, 255, 0.6);
+    list-style-type: disc; /* Show bullet points */
+    padding-left: 20px;      /* Indent the list items */
+
 }
 
 #descriptionWindow h2 {

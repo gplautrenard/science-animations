@@ -31,15 +31,14 @@
         <h3>Keyboard Actions</h3>
         <ul>
             <li>P: Pause / Resume</li>
-            <li>Up/Down: Increase/Decrease Total Length</li>
-            <li>N/B: Increase/Decrease Pendulums</li>
+            <li>Up/Down: Increase/Decrease Pendulums</li>
             <li>I: Toggle Info Display</li>
             <li>Right/Left: Increase/Decrease Initial Offset</li>
-            <li>**A/Z: Increase/Decrease Length 1**</li>
-            <li>**S/X: Increase/Decrease Length 2**</li>
-            <li>**Q/W: Increase/Decrease Mass 1**</li>
-            <li>**E/R: Increase/Decrease Mass 2**</li>
-            <li>**R: Reset Simulation**</li>
+            <li>A/Z: Increase/Decrease Length 1</li>
+            <li>Q/W: Increase/Decrease Length 2</li>
+            <li>S/X: Increase/Decrease Mass 1</li>
+            <li>D/C: Increase/Decrease Mass 2</li>
+            <li>R: Reset Simulation</li>
         </ul>
     </div>
     <div id="descriptionButton">?</div>
@@ -299,29 +298,29 @@
                     if (length1 < 10) length1 = 10;
                     resetSimulation();
                     break;
-                case 's':
+                case 'q':
                     length2 += 10;
                     resetSimulation();
                     break;
-                case 'x':
+                case 'w':
                     length2 -= 10;
                     if (length2 < 10) length2 = 10;
                     resetSimulation();
                     break;
-                 case 'q':
+                 case 's':
                     mass1 += 1;
                     resetSimulation();
                     break;
-                case 'w':
+                case 'x':
                     mass1 -= 1;
                     if (mass1 < 1) mass1 = 1;
                     resetSimulation();
                     break;
-                case 'e':
+                case 'd':
                     mass2 += 1;
                     resetSimulation();
                     break;
-                case 'r':
+                case 'c':
                     mass2 -= 1;
                     if (mass2 < 1) mass2 = 1;
                     resetSimulation();

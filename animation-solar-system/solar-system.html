@@ -31,6 +31,58 @@
         </ul>
     </div>
 
+    <div id="descriptionButton">?</div>
+    <div id="descriptionWindow" class="hidden">
+        <h3>Solar System Simulation</h3>
+        <p>This simulation provides a visual representation of a simplified solar system, demonstrating the orbital movements of planets around a star (the Sun) under the influence of gravity.</p>
+
+        <p><b>Observations:</b></p>
+        <ul>
+            <li><b>Orbital Paths & Period:</b> Planets trace nearly circular paths around the Sun. Planets farther from the Sun take longer to complete their orbits.</li>
+            <li><b>Gravitational Influence:</b> The Sun's gravity governs these orbits, following Newton's Law.</li>
+            <li><b>Trails:</b> Colored trails mark the planets' paths over time.</li>
+        </ul>
+
+        <p><b>Equations:</b></p>
+        <p>The simulation is based on Newton's law of universal gravitation and the equations of motion. The force of gravity between the sun and each planet is calculated as:</p>
+        <ul>
+            <li>F = G * m1 * m2 / r^2
+                <ul>
+                    <li>Where:</li>
+                    <li>F is the gravitational force.</li>
+                    <li>G is the gravitational constant.</li>
+                    <li>m1 is the mass of the Sun.</li>
+                    <li>m2 is the mass of the planet.</li>
+                    <li>r is the distance between the Sun and the planet.</li>
+                </ul>
+            </li>
+        </ul>
+        <p>The update of velocity and position are calculated as:</p>
+        <ul>
+            <li>a = F / m
+                <ul>
+                    <li>Where:</li>
+                    <li>a is the acceleration of the planet.</li>
+                    <li>F is the gravitational force.</li>
+                    <li>m is the mass of the planet.</li>
+                </ul>
+            </li>
+            <li>v += a * dt
+                <ul>
+                    <li>Where:</li>
+                    <li>v is the velocity of the planet.</li>
+                    <li>dt is the time step.</li>
+                </ul>
+            </li>
+            <li>x += v * dt
+                <ul>
+                    <li>Where:</li>
+                    <li>x is the position of the planet.</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
     <div id="elapsedTime"></div>
 
     <script>
@@ -317,6 +369,21 @@
             } else {
                 helpWindow.classList.add('hidden');
             }
+        });
+
+        // Description window management
+        const descriptionButton = document.getElementById('descriptionButton');
+        const descriptionWindow = document.getElementById('descriptionWindow');
+        let descriptionVisible = false;
+
+        descriptionButton.addEventListener('click', () => {
+            descriptionVisible = !descriptionVisible;
+            descriptionWindow.classList.toggle('hidden', !descriptionVisible);
+        });
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         });
 
     </script>
