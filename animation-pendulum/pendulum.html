@@ -31,26 +31,46 @@
         <h3>Keyboard Actions</h3>
         <ul>
             <li>P: Pause / Resume</li>
-            <li>Up/Down: Increase/Decrease Length</li>
+            <li>Up/Down: Increase/Decrease Total Length</li>
             <li>N/B: Increase/Decrease Pendulums</li>
             <li>I: Toggle Info Display</li>
             <li>Right/Left: Increase/Decrease Initial Offset</li>
+            <li>**A/Z: Increase/Decrease Length 1**</li>
+            <li>**S/X: Increase/Decrease Length 2**</li>
+            <li>**Q/W: Increase/Decrease Mass 1**</li>
+            <li>**E/R: Increase/Decrease Mass 2**</li>
+            <li>**R: Reset Simulation**</li>
         </ul>
     </div>
     <div id="descriptionButton">?</div>
     <div id="descriptionWindow" class="hidden">
         <h3>Double Pendulum Simulation</h3>
-        <p>This simulation demonstrates the chaotic motion of a double pendulum. A double pendulum consists of two pendulums, one attached to the end of the other.  Due to its non-linear nature, the motion of a double pendulum can be very complex and unpredictable.
-
-        <b>Observations:</b>
+        <p>This simulation demonstrates the chaotic motion of a double pendulum. A double pendulum consists of two pendulums, one attached to the end of the other. Due to its non-linear nature, the motion of a double pendulum can be very complex and unpredictable.</p>
+        
+        <p><b>Observations:</b></p>
         <ul>
-            <li><b>Chaos:</b> Notice how tiny differences in the initial conditions (e.g., the starting angle of the pendulums) can lead to wildly different motions.  This is characteristic of deterministic chaos.</li>
+            <li><b>Chaos:</b> Notice how tiny differences in the initial conditions (e.g., the starting angle of the pendulums) can lead to wildly different motions. This is characteristic of deterministic chaos.</li>
             <li><b>Trajectories:</b> The colorful trails reveal the complexity of the paths traced by the pendulums. They can be regular for a while, then suddenly become erratic.</li>
-            <li><b>Sensitivity to Initial Conditions:</b> Experiment by slightly changing the initial angle of the pendulums and see how it affects the overall motion.</li>
         </ul>
 
+        <p><b>Equations of Motion:</b></p>
+        <p>The motion of the double pendulum is governed by the following differential equations:</p>
+        <p>
+            θ1'' = ( -g(2m1 + m2)sin(θ1) - m2gsin(θ1 - 2θ2) - 2sin(θ1 - θ2)m2(θ2'^2 l2 + θ1'^2 l1 cos(θ1 - θ2)) ) / ( l1(2m1 + m2 - m2cos(2θ1 - 2θ2)) )
+        </p>
+        <p>
+            θ2'' = ( 2sin(θ1 - θ2)(θ1'^2 l1(m1 + m2) + g(m1 + m2)cos(θ1) + θ2'^2 l2m2 cos(θ1 - θ2)) ) / ( l2(2m1 + m2 - m2cos(2θ1 - 2θ2)) )
+        </p>
+        <p>Where:</p>
+        <ul>
+            <li>θ1 and θ2 are the angles of the first and second pendulum arms, respectively.</li>
+            <li>θ1' and θ2' are the angular velocities of the first and second pendulum arms, respectively.</li>
+            <li>θ1'' and θ2'' are the angular accelerations of the first and second pendulum arms, respectively.</li>
+            <li>m1 and m2 are the masses of the first and second pendulum bobs, respectively.</li>
+            <li>l1 and l2 are the lengths of the first and second pendulum arms, respectively.</li>
+            <li>g is the acceleration due to gravity.</li>
+        </ul>
     </div>
-
 
     <script>
         const canvas = document.getElementById('doublePendulum');
@@ -65,15 +85,15 @@
         let timeMultiplier = 0.1;
 
         class DoublePendulum {
-            constructor(angleOffset, length1, length2) {
+            constructor(angleOffset, length1, length2, mass1, mass2) {
                 this.angle1 = Math.PI/1.5 + angleOffset;
                 this.angle2 = Math.PI/1.5 + angleOffset;
                 this.angleV1 = 0;
                 this.angleV2 = 0;
                 this.length1 = length1;
                 this.length2 = length2;
-                this.mass1 = 10;
-                this.mass2 = 10;
+                this.mass1 = mass1;
+                this.mass2 = mass2;
                 this.trail = [];
                 this.color = `hsl(${Math.random() * 360}, 70%, 50%)`;
                 this.trailLength = 500;
@@ -96,7 +116,6 @@
                 const num7 = g * (this.mass1 + this.mass2) * Math.cos(this.angle1);
                 const num8 = this.angleV2**2 * this.length2 * this.mass2 * Math.cos(this.angle1 - this.angle2);
                 const den2 = this.length2 * (2 * this.mass1 + this.mass2 - this.mass2 * Math.cos(2 * this.angle1 - 2 * this.angle2));
-
                 const angleA2 = (num5 * (num6 + num7 + num8)) / den2;
 
                 this.angleV1 += angleA1 * dt;
@@ -110,7 +129,7 @@
                 const y2 = y1 + this.length2 * Math.cos(this.angle2);
 
                 this.trail.push({x: x2, y: y2});
-                if(this.trail.length > 500) this.trail.shift();
+                if(this.trail.length > this.trailLength) this.trail.shift();
             }
 
             draw() {
@@ -119,18 +138,38 @@
                 const x2 = x1 + this.length2 * Math.sin(this.angle2);
                 const y2 = y1 + this.length2 * Math.cos(this.angle2);
 
+                // Draw the rods
                 ctx.beginPath();
-                ctx.strokeStyle = 'white';
+                ctx.strokeStyle = this.color; // Use pendulum color
                 ctx.lineWidth = 2;
                 ctx.moveTo(canvas.width/2, canvas.height/2);
                 ctx.lineTo(x1, y1);
                 ctx.lineTo(x2, y2);
                 ctx.stroke();
 
-                ctx.fillStyle = 'white';
+
+
+
+                 // Draw mass1 with gradient
+                let gradient1 = ctx.createRadialGradient(x1, y1, 0, x1, y1, this.mass1);
+                gradient1.addColorStop(0, "white");
+                gradient1.addColorStop(0.7, this.color);
+                gradient1.addColorStop(1, "black");
+
+                ctx.fillStyle = gradient1;
                 ctx.beginPath();
-                ctx.arc(x1, y1, 10, 0, Math.PI*2);
-                ctx.arc(x2, y2, 10, 0, Math.PI*2);
+                ctx.arc(x1, y1, this.mass1, 0, Math.PI*2);
+                ctx.fill();
+
+                // Draw mass2 with gradient
+                let gradient2 = ctx.createRadialGradient(x2, y2, 0, x2, y2, this.mass2);
+                gradient2.addColorStop(0, "white");
+                gradient2.addColorStop(0.7, this.color);
+                gradient2.addColorStop(1, "black");
+
+                ctx.fillStyle = gradient2;
+                ctx.beginPath();
+                ctx.arc(x2, y2, this.mass2, 0, Math.PI*2);
                 ctx.fill();
 
                 for (let i = 0; i < this.trail.length - 1; i++) {
@@ -150,13 +189,16 @@
 
         let pendulums = [];
         let numPendulums = 3;
-        let pendulumLength = 150;
+        let length1 = 150;  // Separate lengths
+        let length2 = 150;
+        let mass1 = 10; // Separate masses
+        let mass2 = 10;
         let offset = 0.0001;
 
         function resetSimulation() {
             pendulums = [];
             for (let i = 0; i < numPendulums; i++) {
-                pendulums.push(new DoublePendulum(Math.random() * offset, pendulumLength, pendulumLength));
+                pendulums.push(new DoublePendulum(Math.random() * offset, length1, length2, mass1, mass2));
             }
         }
 
@@ -184,7 +226,10 @@
                 infoDisplay.innerHTML = `
                     Time: ${(elapsedFrames*timeMultiplier).toFixed(0)} s<br>
                     Number of pendulums: ${numPendulums}<br>
-                    Length of sections: ${pendulumLength} px<br>
+                    Length 1: ${length1} px<br>
+                    Length 2: ${length2} px<br>
+                    Mass 1: ${mass1} <br>
+                    Mass 2: ${mass2} <br>
                     Initial offset max amplitude : ${offset.toFixed(10)} rad
                 `;
             } else {
@@ -193,7 +238,6 @@
         }
 
         animate();
-
         // Help window management
         const helpButton = document.getElementById('helpButton');
         const helpWindow = document.getElementById('helpWindow');
@@ -220,22 +264,13 @@
         });
 
         document.addEventListener('keydown', (event) => {
-            switch (event.key) {
-                case 'ArrowUp':
-                    pendulumLength += 10;
-                    resetSimulation();
-                    break;
-                case 'ArrowDown':
-                    pendulumLength -= 10;
-                    if (pendulumLength < 50) pendulumLength = 50;
-                    resetSimulation();
-                    break;
-                case 'n':
+            switch (event.key.toLowerCase()) {
+                case 'arrowup':
                     numPendulums++;
                     if (numPendulums > 8) numPendulums = 8;
                     resetSimulation();
                     break;
-                case 'b':
+                case 'arrowdown':
                     numPendulums--;
                     if (numPendulums < 1) numPendulums = 1;
                     resetSimulation();
@@ -247,12 +282,51 @@
                     showInfo = !showInfo;
                     updateInfoDisplay();
                     break;
-                case 'ArrowRight':
+                case 'arrowright':
                     offset *= 10;
                     resetSimulation();
                     break;
-                case 'ArrowLeft':
+                case 'arrowleft':
                     offset /= 10;
+                    resetSimulation();
+                    break;
+                case 'a':
+                    length1 += 10;
+                    resetSimulation();
+                    break;
+                case 'z':
+                    length1 -= 10;
+                    if (length1 < 10) length1 = 10;
+                    resetSimulation();
+                    break;
+                case 's':
+                    length2 += 10;
+                    resetSimulation();
+                    break;
+                case 'x':
+                    length2 -= 10;
+                    if (length2 < 10) length2 = 10;
+                    resetSimulation();
+                    break;
+                 case 'q':
+                    mass1 += 1;
+                    resetSimulation();
+                    break;
+                case 'w':
+                    mass1 -= 1;
+                    if (mass1 < 1) mass1 = 1;
+                    resetSimulation();
+                    break;
+                case 'e':
+                    mass2 += 1;
+                    resetSimulation();
+                    break;
+                case 'r':
+                    mass2 -= 1;
+                    if (mass2 < 1) mass2 = 1;
+                    resetSimulation();
+                    break;
+                case 'r': // Reset all
                     resetSimulation();
                     break;
             }

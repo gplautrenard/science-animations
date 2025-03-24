@@ -1,77 +1,65 @@
-#helpButton {
+#helpButton, #descriptionButton {
     position: fixed;
-    top: 10px;
-    right: 10px;
-    background-color: rgba(255, 255, 255, 0.2); /* Match close button */
-    color: rgba(255, 255, 255, 0.8); /* Match close button */
-    border: none; /* Match close button */
-    padding: 5px 10px; /* Match close button */
-    border-radius: 5px; /* Match close button */
+    background-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.8);
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
     cursor: pointer;
     z-index: 1000;
 }
 
-#helpWindow {
-    position: fixed;
-    top: 45px; /* Adjusted top position */
+#helpButton {
+    top: 10px;
     right: 10px;
+}
+
+#descriptionButton {
+    bottom: 10px;
+    right: 10px;
+}
+
+#helpWindow, #descriptionWindow {
+    position: fixed;
     background-color: rgba(0, 0, 0, 0.7);
-    color: rgba(255, 255, 255, 0.8); /* Added text transparency */
+    color: rgba(255, 255, 255, 0.8);
     padding: 10px;
     border-radius: 5px;
     z-index: 1001;
-    width: 250px; /* Adjusted width */
 }
 
-#helpWindow.hidden {
+#helpWindow {
+    top: 45px;
+    right: 10px;
+    width: 250px;
+}
+
+#descriptionWindow {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70%;
+    max-width: 80%;
+    max-height: 80%;
+    overflow-y: auto;
+    backdrop-filter: blur(5px);
+}
+
+#helpWindow.hidden, #descriptionWindow.hidden {
     display: none;
 }
 
-#helpWindow ul {
+#helpWindow ul, #descriptionWindow ul {
     list-style-type: none;
     padding: 0;
     margin: 0;
 }
 
-#helpWindow li {
+#helpWindow li, #descriptionWindow li {
     margin-bottom: 5px;
-    color: rgba(255, 255, 255, 0.6); /* Added text transparency to list items */
-}
-
-
-#descriptionButton {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-#descriptionWindow {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 20px;
-    border-radius: 10px;
-    max-width: 80%;
-    max-height: 80%;
-    overflow-y: auto;
+    color: rgba(255, 255, 255, 0.6);
 }
 
 #descriptionWindow h2 {
     margin-top: 0;
-}
-
-#descriptionWindow ul {
-    padding-left: 20px;
-}
-
-.hidden {
-    display: none;
 }
