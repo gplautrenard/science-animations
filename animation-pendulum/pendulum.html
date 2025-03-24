@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pendulum</title>
+    <title>Double Pendulum</title>
     <link rel="stylesheet" href="../commons/css/buttons.css">
     <style>
         body {
@@ -14,7 +14,7 @@
         canvas {
             display: block;
         }
-        #elapsedTime {
+        #infoDisplay {
             position: absolute;
             top: 10px;
             left: 10px;
@@ -25,14 +25,16 @@
 </head>
 <body>
     <canvas id="doublePendulum"></canvas>
-    <div id="elapsedTime"></div>
+    <div id="infoDisplay"></div>
     <div id="helpButton">Keyboard Actions</div>
     <div id="helpWindow" class="hidden">
         <h3>Keyboard Actions</h3>
         <ul>
             <li>P: Pause / Resume</li>
             <li>Up/Down: Increase/Decrease Length</li>
-            <li>Left/Right: Increase/Decrease Pendulums</li>
+            <li>N/B: Increase/Decrease Pendulums</li>
+            <li>I: Toggle Info Display</li>
+            <li>Right/Left: Increase/Decrease Initial Offset</li>
         </ul>
     </div>
     <div id="descriptionButton">?</div>
@@ -44,15 +46,14 @@
     <script>
         const canvas = document.getElementById('doublePendulum');
         const ctx = canvas.getContext('2d');
-        const elapsedTimeDiv = document.getElementById('elapsedTime');
+        const infoDisplay = document.getElementById('infoDisplay');
 
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
         let isPaused = false;
-
+        let showInfo = true;
         let timeMultiplier = 0.1;
-
 
         class DoublePendulum {
             constructor(angleOffset, length1, length2) {
@@ -95,25 +96,24 @@
                 this.angle2 += this.angleV2 * dt;
 
                 const x1 = canvas.width/2 + this.length1 * Math.sin(this.angle1);
-                const y1 = canvas.height/3 + this.length1 * Math.cos(this.angle1);
+                const y1 = canvas.height/2 + this.length1 * Math.cos(this.angle1);
                 const x2 = x1 + this.length2 * Math.sin(this.angle2);
                 const y2 = y1 + this.length2 * Math.cos(this.angle2);
 
                 this.trail.push({x: x2, y: y2});
                 if(this.trail.length > 500) this.trail.shift();
-            
             }
 
             draw() {
                 const x1 = canvas.width/2 + this.length1 * Math.sin(this.angle1);
-                const y1 = canvas.height/3 + this.length1 * Math.cos(this.angle1);
+                const y1 = canvas.height/2 + this.length1 * Math.cos(this.angle1);
                 const x2 = x1 + this.length2 * Math.sin(this.angle2);
                 const y2 = y1 + this.length2 * Math.cos(this.angle2);
 
                 ctx.beginPath();
                 ctx.strokeStyle = 'white';
                 ctx.lineWidth = 2;
-                ctx.moveTo(canvas.width/2, canvas.height/3);
+                ctx.moveTo(canvas.width/2, canvas.height/2);
                 ctx.lineTo(x1, y1);
                 ctx.lineTo(x2, y2);
                 ctx.stroke();
@@ -156,9 +156,7 @@
         let elapsedFrames = 0;
 
         function animate() {
-            
             if(!isPaused){
-                
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                 pendulums.forEach(pendulum => {
@@ -167,40 +165,44 @@
                 });
 
                 elapsedFrames++;
-                elapsedTimeDiv.textContent = `Time: ${(elapsedFrames*timeMultiplier).toFixed(0)} s`;
+                updateInfoDisplay();
             }
             requestAnimationFrame(animate);
+        }
 
+        function updateInfoDisplay() {
+            if (showInfo) {
+                infoDisplay.innerHTML = `
+                    Time: ${(elapsedFrames*timeMultiplier).toFixed(0)} s<br>
+                    Number of pendulums: ${numPendulums}<br>
+                    Length of sections: ${pendulumLength} px<br>
+                    Initial offset max amplitude : ${offset.toFixed(10)} rad
+                `;
+            } else {
+                infoDisplay.innerHTML = '';
+            }
         }
 
         animate();
 
-        // Gestion de la fenêtre d'aide
+        // Help window management
         const helpButton = document.getElementById('helpButton');
         const helpWindow = document.getElementById('helpWindow');
-        let helpVisible = false; // Track visibility
+        let helpVisible = false;
 
         helpButton.addEventListener('click', () => {
-            helpVisible = !helpVisible; // Toggle visibility
-            if (helpVisible) {
-                helpWindow.classList.remove('hidden');
-            } else {
-                helpWindow.classList.add('hidden');
-            }
+            helpVisible = !helpVisible;
+            helpWindow.classList.toggle('hidden', !helpVisible);
         });
 
-        // Gestion de la fenêtre de description
+        // Description window management
         const descriptionButton = document.getElementById('descriptionButton');
         const descriptionWindow = document.getElementById('descriptionWindow');
         let descriptionVisible = false;
 
         descriptionButton.addEventListener('click', () => {
             descriptionVisible = !descriptionVisible;
-            if (descriptionVisible) {
-                descriptionWindow.classList.remove('hidden');
-            } else {
-                descriptionWindow.classList.add('hidden');
-            }
+            descriptionWindow.classList.toggle('hidden', !descriptionVisible);
         });
 
         window.addEventListener('resize', () => {
@@ -219,18 +221,30 @@
                     if (pendulumLength < 50) pendulumLength = 50;
                     resetSimulation();
                     break;
-                case 'ArrowRight':
+                case 'n':
                     numPendulums++;
                     if (numPendulums > 8) numPendulums = 8;
                     resetSimulation();
                     break;
-                case 'ArrowLeft':
+                case 'b':
                     numPendulums--;
                     if (numPendulums < 1) numPendulums = 1;
                     resetSimulation();
                     break;
                 case 'p':
                     isPaused = !isPaused;
+                    break;
+                case 'i':
+                    showInfo = !showInfo;
+                    updateInfoDisplay();
+                    break;
+                case 'ArrowRight':
+                    offset *= 10;
+                    resetSimulation();
+                    break;
+                case 'ArrowLeft':
+                    offset /= 10;
+                    resetSimulation();
                     break;
             }
         });

@@ -60,17 +60,8 @@ function drawRayWithHalo(startX, startY, endX, endY, color, width) {
     ctx.moveTo(startX, startY);
     ctx.lineTo(endX, endY);
     ctx.strokeStyle = color;
-    ctx.lineWidth = width + 5;
+    ctx.lineWidth = width + 3;
     ctx.globalAlpha = 0.1;
-    ctx.stroke();
-    
-    // Halo 2
-    ctx.beginPath();
-    ctx.moveTo(startX, startY);
-    ctx.lineTo(endX, endY);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = width + 2;
-    ctx.globalAlpha = 0.5;
     ctx.stroke();
 
     // Rayon principal
@@ -120,7 +111,7 @@ function drawScene() {
     const startY = centerY - Math.cos(angle) * rayLength;
 
     // Rayon incident
-    drawRayWithHalo(startX, startY, centerX, centerY, 'white', 2);
+    drawRayWithHalo(startX, startY, centerX, centerY, 'white', 1);
 
     // Rayon réfléchi
     const reflectEndX = centerX + Math.sin(angle) * rayLength;
