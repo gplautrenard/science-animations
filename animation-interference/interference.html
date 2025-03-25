@@ -1,50 +1,203 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interference</title>
+    <title>Wave Interference</title>
     <link rel="stylesheet" href="../commons/css/buttons.css">
     <style>
-
         body {
             margin: 0;
-            background-color: #000000;
-            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1519681393784-d120267933ba');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            font-family: 'Roboto', sans-serif;
-            color: rgba(255, 255, 255, 0.9);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            overflow: hidden;
+            background: black;
         }
-
-        .description {
-            text-align: center;
-            font-size: 2.5rem;
-            margin: 40px auto;
-            max-width: 800px;
-            color: rgba(255, 255, 255, 0.7);
-            line-height: 1.6;
-            background-color: rgba(0, 0, 0, 0.3);
-            padding: 20px;
-            border-radius: 10px;
-            letter-spacing: 1px;
+        canvas {
+            display: block;
+        }
+        #infoDisplay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-family: Arial, sans-serif;
         }
     </style>
 </head>
 <body>
+    <canvas id="waterCanvas"></canvas>
 
-    <p class="description">Not implemented yet</p>
+    <div id="helpButton">Keyboard Actions</div>
+    <div id="helpWindow" class="hidden">
+        <ul>
+            <li>Space : Start wave animation</li>
+            <li>Left Arrow : Decrease number of wave sources</li>
+            <li>Right Arrow : Increase number of wave sources</li>
+            <li>P : Pause / Resume simulation</li>
+            <li>Click : Create a wave at click position</li>
+        </ul>
+    </div>
+    <div id="descriptionButton">?</div>
+    <div id="descriptionWindow" class="hidden">
+        <h2>Wave Interference Simulation</h2>
+        <p>This simulation demonstrates the phenomenon of wave interference in a 2D space. Circular waves are generated from multiple sources, showing how waves interact and interfere with each other.</p>
+        <p>Key features of the simulation:</p>
+        <ul>
+            <li>Multiple wave sources (up to 5) can be activated</li>
+            <li>Waves expand outward from their source points</li>
+            <li>Visual representation of wave interference patterns</li>
+            <li>Interactive wave creation by clicking on the canvas</li>
+            <li>Adjustable number of wave sources</li>
+            <li>Pause and resume functionality</li>
+        </ul>
+        <p>Use the keyboard controls or click on the canvas to interact with the simulation and observe how waves interfere in various configurations.</p>
+    </div>
+
 
     <script>
-        const canvas = document.getElementById('scene');
+        const canvas = document.getElementById('waterCanvas');
+        const ctx = canvas.getContext('2d');
+        const infoDisplay = document.getElementById('infoDisplay');
+
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-    </script>
 
+        let waves = [];
+        let isAnimating = false;
+        let maxWaves = 1;
+        let isPaused = false;
+
+        function createWave(x, y) {
+            return {
+                x: x,
+                y: y,
+                radius: 0,
+                maxRadius: Math.max(canvas.width, canvas.height),
+                speed: 2,
+                opacity: 1
+            };
+        }
+
+        function drawWave(wave, N = 5) {
+            const baseLineWidth = 10;
+            const maxLineWidth = baseLineWidth * N;
+
+            for (let i = 0; i < N; i++) {
+                const lineWidth = baseLineWidth * (i + 1);
+                const opacity = wave.opacity * (1 - i / N) * 0.4;
+
+                ctx.beginPath();
+                ctx.arc(wave.x, wave.y, wave.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(0, 255, 255, ${opacity})`;
+                ctx.lineWidth = lineWidth;
+                ctx.stroke();
+            }
+        }
+
+        function animate() {
+            if (!isPaused) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                waves.forEach((wave, index) => {
+                    wave.radius += wave.speed;
+                    wave.opacity = 1 - (wave.radius / wave.maxRadius);
+                    drawWave(wave);
+                    
+                    if (wave.radius > wave.maxRadius) {
+                        waves.splice(index, 1);
+                    }
+                });
+            }
+
+            if (waves.length > 0 || isPaused) {
+                requestAnimationFrame(animate);
+            } else {
+                isAnimating = false;
+            }
+        }
+
+        function startAnimation(wavePositions) {
+            wavePositions.forEach(pos => {
+                waves.push(createWave(pos.x, pos.y));
+            });
+
+            if (!isAnimating) {
+                isAnimating = true;
+                animate();
+            }
+        }
+
+        function getWavePositions() {
+            const positions = [{ x: canvas.width / 2, y: canvas.height / 2 }];
+
+            if (maxWaves >= 2) positions.push({ x: 0, y: 0 });
+            if (maxWaves >= 3) positions.push({ x: canvas.width, y: 0 });
+            if (maxWaves >= 4) positions.push({ x: 0, y: canvas.height });
+            if (maxWaves === 5) positions.push({ x: canvas.width, y: canvas.height });
+
+            return positions;
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                const wavePositions = getWavePositions();
+                startAnimation(wavePositions);
+            } else if (e.code === 'ArrowLeft') {
+                maxWaves = Math.max(1, maxWaves - 1);
+                updateInfoDisplay();
+            } else if (e.code === 'ArrowRight') {
+                maxWaves = Math.min(5, maxWaves + 1);
+                updateInfoDisplay();
+            } else if (e.code === 'KeyP') {
+                isPaused = !isPaused;
+                updateInfoDisplay();
+                if (!isAnimating && isPaused) {
+                    isAnimating = true;
+                    animate();
+                }
+            }
+        });
+
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            startAnimation([{ x, y }]);
+        });
+
+        // Gestion de la fenêtre d'aide
+        const helpButton = document.getElementById('helpButton');
+        const helpWindow = document.getElementById('helpWindow');
+        let helpVisible = false; // Track visibility
+
+        helpButton.addEventListener('click', () => {
+            helpVisible = !helpVisible; // Toggle visibility
+            if (helpVisible) {
+                helpWindow.classList.remove('hidden');
+            } else {
+                helpWindow.classList.add('hidden');
+            }
+        });
+
+        // Gestion de la fenêtre de description
+        const descriptionButton = document.getElementById('descriptionButton');
+        const descriptionWindow = document.getElementById('descriptionWindow');
+        let descriptionVisible = false;
+
+        descriptionButton.addEventListener('click', () => {
+            descriptionVisible = !descriptionVisible;
+            if (descriptionVisible) {
+                descriptionWindow.classList.remove('hidden');
+            } else {
+                descriptionWindow.classList.add('hidden');
+            }
+        });
+
+    </script>
 </body>
 </html>

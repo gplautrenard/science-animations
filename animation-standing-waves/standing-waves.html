@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Standing Waves</title>
+    <link rel="stylesheet" href="../commons/css/buttons.css">
     <style>
         body {
             margin: 0;
@@ -29,6 +30,35 @@
     <canvas id="waveSum"></canvas>
     <div id="infoDisplay"></div>
 
+    <div id="helpButton">Keyboard Actions</div>
+    <div id="helpWindow" class="hidden">
+        <ul>
+            <li>Q / A : Update Wave 1 Wavelength</li>
+            <li>W / S : Update Wave 1 Amplitude</li>
+            <li>E / D : Update Wave 1 Speed</li>
+            <li>R / F : Update Wave 2 Wavelength</li>
+            <li>T / G : Update Wave 2 Amplitude</li>
+            <li>Y / H : Update Wave 2 Speed</li>
+            <li>&rarr; / &larr; : Update Wave 1 & 2 Speed</li>
+            <li>I : Toggle Wave Information Display</li>
+            <li>P : Pause / Resume</li>
+        </ul>
+    </div>
+    <div id="descriptionButton">?</div>
+    <div id="descriptionWindow" class="hidden">
+        <h2>Standing Wave Simulation</h2>
+        <p>This simulation demonstrates the creation of standing waves through the superposition of two waves.</p>
+        <p>Key features of the simulation:</p>
+        <ul>
+            <li>Visual representation of two individual waves.</li>
+            <li>A combined wave that shows the superposition of the two waves.</li>
+            <li>Adjustable wavelengths, amplitudes, and speeds for each wave.</li>
+            <li>Pause and resume functionality to examine the waves.</li>
+            <li>Display of wave parameters (wavelength, amplitude, speed).</li>
+        </ul>
+        <p>Use the keyboard controls to interact with the simulation and observe how changes in wave parameters affect the resulting standing wave.</p>
+    </div>
+
     <script>
         const canvas1 = document.getElementById('wave1');
         const canvas2 = document.getElementById('wave2');
@@ -49,7 +79,7 @@
         let speed1 = 2;
         let speed2 = 2;
         let time = 0;
-
+        let infoVisible = true;
         let isPaused = false;
 
         function drawAxis(ctx) {
@@ -88,7 +118,6 @@
             ctxSum.beginPath();
             ctxSum.strokeStyle = 'hsl(0, 70%, 50%)';
             ctxSum.lineWidth = 2;
-
             for (let x = 0; x < canvasSum.width; x++) {
                 const wave1 = amplitude1 * Math.sin((x - time * speed1) / waveLength1 * 2 * Math.PI);
                 const wave2 = amplitude2 * Math.sin((x + time * speed2) / waveLength2 * 2 * Math.PI);
@@ -107,11 +136,7 @@
         function updateInfoDisplay() {
             infoDisplay.innerHTML = `
                 Wave 1 - Wavelength: ${waveLength1}px, Amplitude: ${amplitude1}px, Speed: ${speed1.toFixed(1)}<br>
-                Wave 2 - Wavelength: ${waveLength2}px, Amplitude: ${amplitude2}px, Speed: ${speed2.toFixed(1)}<br>
-                Controls:<br>
-                Q/A: Wave 1 Wavelength, W/S: Wave 1 Amplitude, E/D: Wave 1 Speed<br>
-                R/F: Wave 2 Wavelength, T/G: Wave 2 Amplitude, Y/H: Wave 2 Speed<br>
-                Right/Left Arrow: Increase/Decrease both speeds
+                Wave 2 - Wavelength: ${waveLength2}px, Amplitude: ${amplitude2}px, Speed: - ${speed2.toFixed(1)}<br>
             `;
         }
 
@@ -121,7 +146,12 @@
                 drawWave(ctx1, waveLength1, amplitude1, speed1, 1);
                 drawWave(ctx2, waveLength2, amplitude2, speed2, -1);
                 drawSumWave();
-                updateInfoDisplay();
+                if (infoVisible) {
+                    infoDisplay.style.display = 'block';
+                    updateInfoDisplay();
+                } else {
+                    infoDisplay.style.display = 'none';
+                }
             }
             requestAnimationFrame(animate);
         }
@@ -151,6 +181,9 @@
                 case 'g': amplitude2 = Math.max(5, amplitude2 - step); break;
                 case 'y': speed2 += speedStep; break;
                 case 'h': speed2 = Math.max(0.1, speed2 - speedStep); break;
+                 case 'i':
+                    infoVisible = !infoVisible;
+                    break;
                 case 'arrowright':
                     speed1 += speedStep;
                     speed2 += speedStep;
@@ -160,7 +193,40 @@
                     speed2 = Math.max(0.1, speed2 - speedStep);
                     break;
             }
-            updateInfoDisplay();
+             if (infoVisible) {
+                    infoDisplay.style.display = 'block';
+                    updateInfoDisplay();
+                } else {
+                    infoDisplay.style.display = 'none';
+                }
+        });
+
+        // Gestion de la fenêtre d'aide
+        const helpButton = document.getElementById('helpButton');
+        const helpWindow = document.getElementById('helpWindow');
+        let helpVisible = false; // Track visibility
+
+        helpButton.addEventListener('click', () => {
+            helpVisible = !helpVisible; // Toggle visibility
+            if (helpVisible) {
+                helpWindow.classList.remove('hidden');
+            } else {
+                helpWindow.classList.add('hidden');
+            }
+        });
+
+        // Gestion de la fenêtre de description
+        const descriptionButton = document.getElementById('descriptionButton');
+        const descriptionWindow = document.getElementById('descriptionWindow');
+        let descriptionVisible = false;
+
+        descriptionButton.addEventListener('click', () => {
+            descriptionVisible = !descriptionVisible;
+            if (descriptionVisible) {
+                descriptionWindow.classList.remove('hidden');
+            } else {
+                descriptionWindow.classList.add('hidden');
+            }
         });
     </script>
 </body>
