@@ -29,6 +29,35 @@
         </ul>
     </div>
 
+    
+    <div id="descriptionButton">?</div>
+    <div id="descriptionWindow" class="hidden">
+        <h3>Satellite Orbit Simulation Sandbox</h3>
+        <p>This simulation provides an interactive sandbox to visualize a satellite orbiting the Earth. It allows you to manipulate various parameters to observe their effect on the satellite's orbit and the view.</p>
+
+        <p><b>Key Features:</b></p>
+        <ul>
+            <li><b>Satellite Orbit Visualization:</b> Displays the satellite's orbit around the Earth based on simplified orbital mechanics.</li>
+            <li><b>Interactive Controls:</b> Provides keyboard controls to adjust the simulation parameters. Keep in mind there's no physical laws implemented bewind parameters variations. It's just for fun !</li>
+            <li><b>Camera Views:</b> Switch between a fixed camera position and a satellite-following camera.</li>
+        </ul>
+
+        <p><b>Important Note:</b></p>
+        <p>The controls for Earth's rotation speed, satellite speed, and satellite altitude are provided purely for illustrative purposes. These adjustments do not represent physically accurate orbital mechanics.  They are intended to allow the user to explore the visual effects of changing these parameters within the simulation.</p>
+
+        <p><b>Keyboard Controls:</b></p>
+        <ul>
+            <li><b>P:</b> Pause/Resume the simulation.</li>
+            <li><b>V:</b> Toggle between a fixed camera and a camera that follows the satellite.</li>
+            <li><b>E/Z:</b> Increase/Decrease the Earth's rotation speed (purely visual, not physically accurate).</li>
+            <li><b>S/Q:</b> Double/Halve the simulation time scale, affecting the satellite's speed.</li>
+            <li><b>H/G:</b> Increase/Decrease the satellite's altitude (purely visual, not physically accurate).</li>
+            <li><b>O/I:</b> Expand/Decrease the orbit segment displayed.</li>
+            <li><b>Right/Left Arrows:</b> Rotate the camera in satellite view.</li>
+        </ul>
+    </div>
+
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/satellite.js/4.0.0/satellite.min.js"></script>
     <script>
@@ -385,6 +414,21 @@
             } else {
                 helpWindow.classList.add('hidden');
             }
+        });
+
+        // Description window management
+        const descriptionButton = document.getElementById('descriptionButton');
+        const descriptionWindow = document.getElementById('descriptionWindow');
+        let descriptionVisible = false;
+
+        descriptionButton.addEventListener('click', () => {
+            descriptionVisible = !descriptionVisible;
+            descriptionWindow.classList.toggle('hidden', !descriptionVisible);
+        });
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         });
 
     </script>
