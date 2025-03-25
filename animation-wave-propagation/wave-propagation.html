@@ -49,13 +49,23 @@
             };
         }
 
-        function drawWave(wave) {
-            ctx.beginPath();
-            ctx.arc(wave.x, wave.y, wave.radius, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(0, 255, 255, ${wave.opacity})`;
-            ctx.lineWidth = 30;
-            ctx.stroke();
+        function drawWave(wave, N = 5) {
+            const baseLineWidth = 10;
+            const maxLineWidth = baseLineWidth * N;
+
+            for (let i = 0; i < N; i++) {
+                const lineWidth = baseLineWidth * (i + 1);
+                const opacity = wave.opacity * (1 - i / N)*0.3;
+
+                ctx.beginPath();
+                ctx.arc(wave.x, wave.y, wave.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(0, 255, 255, ${opacity})`;
+                ctx.lineWidth = lineWidth;
+                ctx.stroke();
+            }
         }
+
+
 
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
