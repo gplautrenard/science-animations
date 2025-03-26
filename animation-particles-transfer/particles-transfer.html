@@ -31,9 +31,10 @@
         const ctx = canvas.getContext('2d');
         
         // Configuration
-        const PARTICLES_NUMBER = 100;
+        const PARTICLES_NUMBER = 50;
         const PARTICLE_RADIUS = 5;
         const PARTICLE_SPEED = 2;
+        const WALL_GAP_HEIGHT = 100; // Hauteur de l'ouverture
         
         // Setup canvas
         function resizeCanvas() {
@@ -46,27 +47,55 @@
         // Particle class
         class Particle {
             constructor() {
-                this.reset();
+                this.reset(true);
             }
 
-            reset() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                const angle = Math.random() * Math.PI * 2;
+            reset(initial = false) {
+                const wallX = canvas.width / 2;
+                // Position aléatoire uniquement à gauche
+                this.x = PARTICLE_RADIUS + Math.random() * (wallX - PARTICLE_RADIUS * 2);
+                this.y = PARTICLE_RADIUS + Math.random() * (canvas.height - PARTICLE_RADIUS * 2);
+                
+                const angle = initial ? 
+                    Math.random() * Math.PI * 2 : // Direction aléatoire initiale
+                    Math.atan2(this.vy, this.vx); // Conservation de la direction
+                
                 this.vx = Math.cos(angle) * PARTICLE_SPEED;
                 this.vy = Math.sin(angle) * PARTICLE_SPEED;
                 this.radius = PARTICLE_RADIUS;
             }
 
             update() {
+                const prevX = this.x;
                 this.x += this.vx;
                 this.y += this.vy;
-                
-                // Wall collisions
+
+                // Collisions avec les bords
+                this.handleWallCollisions();
+                // Collision avec la paroi centrale
+                this.handleCentralWall(prevX);
+            }
+
+            handleWallCollisions() {
                 if (this.x < this.radius) this.vx = Math.abs(this.vx);
                 if (this.x > canvas.width - this.radius) this.vx = -Math.abs(this.vx);
                 if (this.y < this.radius) this.vy = Math.abs(this.vy);
                 if (this.y > canvas.height - this.radius) this.vy = -Math.abs(this.vy);
+            }
+
+            handleCentralWall(prevX) {
+                const wallX = canvas.width / 2;
+                const gapYStart = (canvas.height - WALL_GAP_HEIGHT) / 2;
+                const gapYEnd = gapYStart + WALL_GAP_HEIGHT;
+
+                // Vérifie si la particule traverse la paroi tout en prenant en compte son rayon
+                if ((prevX <= wallX - this.radius && this.x >= wallX - this.radius) || 
+                    (prevX >= wallX + this.radius && this.x <= wallX + this.radius)) {
+                    if (this.y - this.radius < gapYStart || this.y + this.radius > gapYEnd) {
+                        this.vx *= -1; // Inversion de la vitesse
+                        this.x = prevX; // Annulation du mouvement
+                    }
+                }
             }
 
             draw() {
@@ -80,7 +109,7 @@
         // Create particles
         const particles = Array.from({ length: PARTICLES_NUMBER }, () => new Particle());
 
-        // Collision detection
+        // Collision detection between particles
         function checkCollisions() {
             for (let i = 0; i < particles.length; i++) {
                 for (let j = i + 1; j < particles.length; j++) {
@@ -96,31 +125,31 @@
                         const angle = Math.atan2(dy, dx);
                         const m1 = 1; // mass (same for all particles)
                         const m2 = 1;
-                        
+
                         // Rotate velocity vectors
                         const u1 = rotate(p1.vx, p1.vy, angle);
                         const u2 = rotate(p2.vx, p2.vy, angle);
-                        
+
                         // Swap tangential velocities (elastic collision)
                         const v1 = [u2[0], u1[1]];
                         const v2 = [u1[0], u2[1]];
-                        
+
                         // Rotate back
                         const [v1x, v1y] = rotate(v1[0], v1[1], -angle);
                         const [v2x, v2y] = rotate(v2[0], v2[1], -angle);
-                        
+
                         // Update velocities
                         p1.vx = v1x;
                         p1.vy = v1y;
                         p2.vx = v2x;
                         p2.vy = v2y;
-                        
+
                         // Prevent overlap
-                        const overlap = (p1.radius + p2.radius - distance) / 2;
-                        p1.x -= overlap * (dx / distance);
-                        p1.y -= overlap * (dy / distance);
-                        p2.x += overlap * (dx / distance);
-                        p2.y += overlap * (dy / distance);
+                        const overlapDistance = (p1.radius + p2.radius - distance) / 2;
+                        p1.x -= overlapDistance * (dx / distance);
+                        p1.y -= overlapDistance * (dy / distance);
+                        p2.x += overlapDistance * (dx / distance);
+                        p2.y += overlapDistance * (dy / distance);
                     }
                 }
             }
@@ -133,16 +162,31 @@
             ];
         }
 
+        // Dessin de la paroi centrale avec ouverture
+        function drawWall() {
+            const wallX = canvas.width / 2;
+            const gapYStart = (canvas.height - WALL_GAP_HEIGHT) / 2;
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            // Partie supérieure de la paroi
+            ctx.fillRect(wallX - 1, 0, 2, gapYStart);
+            // Partie inférieure de la paroi
+            ctx.fillRect(wallX - 1, gapYStart + WALL_GAP_HEIGHT, 2, canvas.height - gapYStart - WALL_GAP_HEIGHT);
+        }
+
         // Animation loop
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawWall();
             
             particles.forEach(particle => {
                 particle.update();
                 particle.draw();
             });
-            
+
             checkCollisions();
+            
             requestAnimationFrame(animate);
         }
 
