@@ -92,11 +92,12 @@
 
             update() {
                 const prevX = this.x;
+                const prevY = this.y;
                 this.x += this.vx;
                 this.y += this.vy;
 
                 this.handleWallCollisions();
-                this.handleCentralWall(prevX);
+                this.handleCentralWall(prevX, prevY);
             }
 
             handleWallCollisions() {
@@ -105,20 +106,32 @@
                 if (this.y < this.radius) this.vy = Math.abs(this.vy);
                 if (this.y > canvas.height - this.radius) this.vy = -Math.abs(this.vy);
             }
+            handleCentralWall(prevX, prevY) {
+    const wallX = canvas.width / 2;
+    const gapYStart = (canvas.height - WALL_GAP_HEIGHT) / 2;
+    const gapYEnd = gapYStart + WALL_GAP_HEIGHT;
 
-            handleCentralWall(prevX) {
-                const wallX = canvas.width / 2;
-                const gapYStart = (canvas.height - WALL_GAP_HEIGHT) / 2;
-                const gapYEnd = gapYStart + WALL_GAP_HEIGHT;
+    // Check if the particle is moving towards the wall
+    const movingRight = this.x > prevX;
+    const movingLeft = this.x < prevX;
 
-                if ((prevX <= wallX - this.radius && this.x >= wallX - this.radius) || 
-                    (prevX >= wallX + this.radius && this.x <= wallX + this.radius)) {
-                    if (this.y - this.radius < gapYStart || this.y + this.radius > gapYEnd) {
-                        this.vx *= -1;
-                        this.x = prevX;
-                    }
-                }
-            }
+    // Calculate the collision point
+    if ((movingRight && prevX < wallX && this.x + this.radius > wallX) ||
+        (movingLeft && prevX > wallX && this.x - this.radius < wallX)) {
+
+        // Calculate the y coordinate of the collision point
+        const intersectY = prevY + (wallX - prevX) * (this.y - prevY) / (this.x - prevX);
+
+        // Check if the collision point is outside the gap
+        if (intersectY < gapYStart || intersectY > gapYEnd) {
+            // Reverse the x velocity and move the particle back
+            this.vx *= -1;
+            this.x = prevX;
+        }
+    }
+}
+
+
 
             draw() {
                 const gradient = ctx.createRadialGradient(
