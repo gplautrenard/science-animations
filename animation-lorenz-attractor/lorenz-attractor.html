@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lorenz Attractor</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="lorenzCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById('lorenzCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Configuration du canvas
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Paramètres de Lorenz
+        const sigma = 10;
+        const rho = 28;
+        const beta = 8 / 3;
+
+        // Fonction pour générer des conditions initiales avec un biais aléatoire
+        function getRandomInitialConditions(bias) {
+            const x = 0.1 + (Math.random() - 0.5) * bias;
+            const y = 0.1 + (Math.random() - 0.5) * bias;
+            const z = 0.1 + (Math.random() - 0.5) * bias;
+            return { x, y, z };
+        }
+
+        // Conditions initiales pour les deux trajectoires
+        const initialConditions1 = getRandomInitialConditions(0.001); // Léger biais aléatoire
+        const initialConditions2 = getRandomInitialConditions(0.001); // Léger biais aléatoire
+
+        let x1 = initialConditions1.x;
+        let y1 = initialConditions1.y;
+        let z1 = initialConditions1.z;
+
+        let x2 = initialConditions2.x;
+        let y2 = initialConditions2.y;
+        let z2 = initialConditions2.z;
+
+        // Pas de temps
+        const dt = 0.01;
+
+        // Échelle et offset pour l'affichage
+        const scale = 10;
+        const offsetX = canvas.width / 2;
+        const offsetY = canvas.height / 5; // Déplace vers le haut (divise par un nombre plus petit)
+
+        // Listes des points pour les trajectoires
+        let points1 = [];
+        let points2 = [];
+        const maxPoints = 1000; // Limiter le nombre de points
+
+        function lorenz(x, y, z) {
+            const dx = sigma * (y - x) * dt;
+            const dy = (x * (rho - z) - y) * dt;
+            const dz = (x * y - beta * z) * dt;
+            return { dx, dy, dz };
+        }
+
+        function updateLorenz(x, y, z) {
+            const { dx, dy, dz } = lorenz(x, y, z);
+            x += dx;
+            y += dy;
+            z += dz;
+            return { x, y, z };
+        }
+
+        function draw() {
+            // Calculer les prochains points pour les deux trajectoires
+            let newValues1 = updateLorenz(x1, y1, z1);
+            x1 = newValues1.x;
+            y1 = newValues1.y;
+            z1 = newValues1.z;
+
+            let newValues2 = updateLorenz(x2, y2, z2);
+            x2 = newValues2.x;
+            y2 = newValues2.y;
+            z2 = newValues2.z;
+
+            // Ajouter les points aux listes
+            points1.push({ x: x1, y: z1 }); // Afficher x et z
+            points2.push({ x: x2, y: z2 }); // Afficher x et z
+
+            // Supprimer les points les plus anciens si les listes sont trop longues
+            if (points1.length > maxPoints) {
+                points1.shift();
+            }
+            if (points2.length > maxPoints) {
+                points2.shift();
+            }
+
+            // Effacer le canvas
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; // Ajoute un effet de fondu
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Dessiner la trajectoire 1 (tons chauds)
+            ctx.beginPath();
+            for (let i = 0; i < points1.length - 1; i++) {
+                const point = points1[i];
+                const displayX = point.x * scale + offsetX;
+                const displayY = point.y * scale + offsetY;
+
+                // Utiliser un gradient de couleurs chaudes (rouge à jaune)
+                const hue = 360 * (i / points1.length) * 0.15; // Limite la variation à 15% du spectre (rouge/jaune)
+                ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+
+                const nextPoint = points1[i + 1];
+                const nextDisplayX = nextPoint.x * scale + offsetX;
+                const nextDisplayY = nextPoint.y * scale + offsetY;
+
+                ctx.beginPath();
+                ctx.moveTo(displayX, displayY);
+                ctx.lineTo(nextDisplayX, nextDisplayY);
+                ctx.stroke();
+            }
+
+            // Dessiner la trajectoire 2 (tons froids)
+            ctx.beginPath();
+            for (let i = 0; i < points2.length - 1; i++) {
+                const point = points2[i];
+                const displayX = point.x * scale + offsetX;
+                const displayY = point.y * scale + offsetY;
+
+                // Utiliser un gradient de couleurs froides (bleu à vert)
+                const hue = 200 + (i / points2.length) * 160 * 0.15 ; // Ajuster pour commencer à bleu et varier vers vert
+                ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+
+                const nextPoint = points2[i + 1];
+                const nextDisplayX = nextPoint.x * scale + offsetX;
+                const nextDisplayY = nextPoint.y * scale + offsetY;
+
+                ctx.beginPath();
+                ctx.moveTo(displayX, displayY);
+                ctx.lineTo(nextDisplayX, nextDisplayY);
+                ctx.stroke();
+            }
+        }
+
+        function animate() {
+            draw();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
