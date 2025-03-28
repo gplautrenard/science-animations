@@ -28,6 +28,8 @@
             <li><b>I</b>: Toggle Info Display</li>
             <li><b>Right/Left Arrows</b>: Increase/Decrease Particle Speed</li>
             <li><b>R</b>: Reset Simulation</li>
+             <li><b>Z/S</b>: Increase/Decrease Gap Size</li>
+            <li><b>Q/D</b>: Increase/Decrease Particle Size</li>
         </ul>
     </div>
     <div id="descriptionButton">?</div>
@@ -46,22 +48,23 @@
             <li><b>Pause/Resume:</b> Allows you to stop or restart the simulation to observe the particles in more detail.</li>
             <li><b>Number of Particles:</b> Adjusts the number of particles in the simulation to observe the impact on equilibrium.</li>
             <li><b>Particle Speed:</b> Changes the speed of the particles to see how it affects their movement and the achievement of equilibrium.</li>
+             <li><b>Gap Size:</b> Adjusts the size of the gap in the central wall.</li>
+            <li><b>Particle Size:</b> Changes the size of the particles in the simulation.</li>
         </ul>
     </div>
 
     <script>
         const canvas = document.getElementById('scene');
         const ctx = canvas.getContext('2d');
-        
-        
 
         // Configuration
         let PARTICLES_NUMBER = 50;
-        const PARTICLE_RADIUS = 5;
+        let PARTICLE_RADIUS = 5;  // Make PARTICLE_RADIUS mutable
         let PARTICLE_SPEED = 2;
-        const WALL_GAP_HEIGHT = 100;
+        let WALL_GAP_HEIGHT = 100; // Make WALL_GAP_HEIGHT mutable
         let PARTICLE_COLOR = `hsl(${Math.random() * 360}, 70%, 50%)`;
-        
+        const SPHERE_RADIUS = 10; // Reduced sphere radius
+
         // Setup canvas
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -98,6 +101,7 @@
 
                 this.handleWallCollisions();
                 this.handleCentralWall(prevX, prevY);
+                this.handleSphereCollisions(prevX, prevY); // NEW: Handle sphere collisions
             }
 
             handleWallCollisions() {
@@ -107,31 +111,82 @@
                 if (this.y > canvas.height - this.radius) this.vy = -Math.abs(this.vy);
             }
             handleCentralWall(prevX, prevY) {
-    const wallX = canvas.width / 2;
-    const gapYStart = (canvas.height - WALL_GAP_HEIGHT) / 2;
-    const gapYEnd = gapYStart + WALL_GAP_HEIGHT;
+                const wallX = canvas.width / 2;
+                const gapYStart = (canvas.height - WALL_GAP_HEIGHT) / 2;
+                const gapYEnd = gapYStart + WALL_GAP_HEIGHT;
 
-    // Check if the particle is moving towards the wall
-    const movingRight = this.x > prevX;
-    const movingLeft = this.x < prevX;
+                // Check if the particle is moving towards the wall
+                const movingRight = this.x > prevX;
+                const movingLeft = this.x < prevX;
 
-    // Calculate the collision point
-    if ((movingRight && prevX < wallX && this.x + this.radius > wallX) ||
-        (movingLeft && prevX > wallX && this.x - this.radius < wallX)) {
+                // Calculate the collision point
+                if ((movingRight && prevX < wallX && this.x + this.radius > wallX) ||
+                    (movingLeft && prevX > wallX && this.x - this.radius < wallX)) {
 
-        // Calculate the y coordinate of the collision point
-        const intersectY = prevY + (wallX - prevX) * (this.y - prevY) / (this.x - prevX);
+                    // Calculate the y coordinate of the collision point
+                    const intersectY = prevY + (wallX - prevX) * (this.y - prevY) / (this.x - prevX);
 
-        // Check if the collision point is outside the gap
-        if (intersectY < gapYStart || intersectY > gapYEnd) {
-            // Reverse the x velocity and move the particle back
-            this.vx *= -1;
-            this.x = prevX;
-        }
-    }
-}
+                    // Check if the collision point is outside the gap
+                    if (intersectY < gapYStart || intersectY > gapYEnd) {
+                        // Reverse the x velocity and move the particle back
+                        this.vx *= -1;
+                        this.x = prevX;
+                    }
+                }
+            }
 
+            handleSphereCollisions(prevX, prevY) {
+                const wallX = canvas.width / 2;
+                const gapYStart = (canvas.height - WALL_GAP_HEIGHT) / 2;
+                const topSphereY = gapYStart;
+                const bottomSphereY = gapYStart + WALL_GAP_HEIGHT;
 
+                // Check collision with top sphere
+                let dxTop = this.x - wallX;
+                let dyTop = this.y - topSphereY;
+                let distanceTop = Math.sqrt(dxTop * dxTop + dyTop * dyTop);
+
+                if (distanceTop < this.radius + SPHERE_RADIUS) {
+                    // Normalize the vector between the particle and the sphere center
+                    let normalX = dxTop / distanceTop;
+                    let normalY = dyTop / distanceTop;
+
+                    // Calculate the dot product of the velocity vector and the normal vector
+                    let dotProduct = this.vx * normalX + this.vy * normalY;
+
+                    // Reverse the velocity component along the normal
+                    this.vx -= 2 * dotProduct * normalX;
+                    this.vy -= 2 * dotProduct * normalY;
+
+                    // Move the particle out of the sphere to avoid sticking
+                    let overlap = (this.radius + SPHERE_RADIUS - distanceTop);
+                    this.x += overlap * normalX;
+                    this.y += overlap * normalY;
+                }
+
+                // Check collision with bottom sphere
+                let dxBottom = this.x - wallX;
+                let dyBottom = this.y - bottomSphereY;
+                let distanceBottom = Math.sqrt(dxBottom * dxBottom + dyBottom * dyBottom);
+
+                if (distanceBottom < this.radius + SPHERE_RADIUS) {
+                    // Normalize the vector between the particle and the sphere center
+                    let normalX = dxBottom / distanceBottom;
+                    let normalY = dyBottom / distanceBottom;
+
+                    // Calculate the dot product of the velocity vector and the normal vector
+                    let dotProduct = this.vx * normalX + this.vy * normalY;
+
+                    // Reverse the velocity component along the normal
+                    this.vx -= 2 * dotProduct * normalX;
+                    this.vy -= 2 * dotProduct * normalY;
+
+                    // Move the particle out of the sphere to avoid sticking
+                    let overlap = (this.radius + SPHERE_RADIUS - distanceBottom);
+                    this.x += overlap * normalX;
+                    this.y += overlap * normalY;
+                }
+            }
 
             draw() {
                 const gradient = ctx.createRadialGradient(
@@ -172,6 +227,9 @@
             startTime = Date.now();
             totalPausedDuration = 0;
             pauseStart = 0;
+
+            // Reset particle radius and gap height
+            particles.forEach(particle => particle.radius = PARTICLE_RADIUS);
         }
 
         // Keyboard controls
@@ -193,19 +251,35 @@
                     displayInfos=!displayInfos;
                     break;
                 case 'ArrowRight':
-                    PARTICLE_SPEED += 0.5;
+                    PARTICLE_SPEED = Math.min(3, PARTICLE_SPEED + 0.5);
                     resetSimulation();
                     break;
                 case 'ArrowLeft':
-                    PARTICLE_SPEED = Math.max(0.5, PARTICLE_SPEED - 0.5);
+                    PARTICLE_SPEED = Math.max(1, PARTICLE_SPEED - 0.5);
                     resetSimulation();
                     break;
                 case 'ArrowUp':
-                    PARTICLES_NUMBER += 10;
+                    PARTICLES_NUMBER = Math.min(200, PARTICLES_NUMBER + 10);
                     resetSimulation();
                     break;
                 case 'ArrowDown':
                     PARTICLES_NUMBER = Math.max(10, PARTICLES_NUMBER - 10);
+                    resetSimulation();
+                    break;
+                case 'z': // Increase Gap Size
+                    WALL_GAP_HEIGHT += 5;
+                    resetSimulation();
+                    break;
+                case 's': // Decrease Gap Size
+                    WALL_GAP_HEIGHT = Math.max(10, WALL_GAP_HEIGHT - 5);
+                    resetSimulation();
+                    break;
+                case 'q': // Increase Particle Size
+                    PARTICLE_RADIUS = Math.min(10, PARTICLE_RADIUS + 0.5);
+                    resetSimulation();
+                    break;
+                case 'd': // Decrease Particle Size
+                    PARTICLE_RADIUS = Math.max(2, PARTICLE_RADIUS - 0.5);
                     resetSimulation();
                     break;
             }
@@ -259,6 +333,17 @@
             ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
             ctx.fillRect(wallX - 1, 0, 2, gapYStart);
             ctx.fillRect(wallX - 1, gapYStart + WALL_GAP_HEIGHT, 2, canvas.height - gapYStart - WALL_GAP_HEIGHT);
+
+            // Draw the spheres
+            ctx.beginPath();
+            ctx.arc(wallX, gapYStart, SPHERE_RADIUS, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(wallX, gapYStart + WALL_GAP_HEIGHT, SPHERE_RADIUS, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.fill();
         }
 
         let elapsedTime = Date.now()
@@ -300,13 +385,16 @@
             if(displayInfos){
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
                 ctx.font = '16px Arial';
-                ctx.fillText(`Left: ${leftCount}`, 20, 90);
-                ctx.fillText(`Right: ${rightCount}`, canvas.width - 100, 90);
                 ctx.fillText(`Particles: ${PARTICLES_NUMBER}`, 20, 30);
                 ctx.fillText(`Speed: ${PARTICLE_SPEED.toFixed(1)}`, 20, 60);
                 ctx.fillText(`Time: ${Math.floor(seconds/60)}:${(seconds%60).toString().padStart(2,'0')}`, canvas.width/2 - 50, 30);
+                ctx.fillText(`Gap: ${WALL_GAP_HEIGHT.toFixed(1)}`, 20, 90);
+                ctx.fillText(`Particle Size: ${PARTICLE_RADIUS.toFixed(1)}`, 20, 120);
+                ctx.fillText(`Left: ${leftCount}`, 20, 180);
+                ctx.fillText(`Right: ${rightCount}`, canvas.width - 100, 180);
                 }
             if (equilibriumReached) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 1)';
                 ctx.font = '24px Arial';
                 ctx.fillText('Equilibrium reached!', canvas.width/2 - 100, canvas.height/2);
             }
