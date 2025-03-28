@@ -55,10 +55,10 @@
         const ctx = canvas.getContext('2d');
 
         // Configuration
-        let PARTICLES_NUMBER = 100;
+        let PARTICLES_NUMBER = 200;
         const PARTICLE_RADIUS = 5; 
         let PARTICLE_SPEED = 1.5;
-        let WALL_GAP_HEIGHT = 100; // Make WALL_GAP_HEIGHT mutable
+        let WALL_GAP_HEIGHT = 300; // Make WALL_GAP_HEIGHT mutable
         let PARTICLE_COLOR = `hsl(${Math.random() * 360}, 70%, 50%)`;
         const WALL_THICKNESS_FACTOR = 3; // Wall thickness factor
 
@@ -259,7 +259,7 @@
                     resetSimulation();
                     break;
                 case 'ArrowUp':
-                    PARTICLES_NUMBER = Math.min(200, PARTICLES_NUMBER + 10);
+                    PARTICLES_NUMBER = Math.min(250, PARTICLES_NUMBER + 10);
                     resetSimulation();
                     break;
                 case 'ArrowDown':
